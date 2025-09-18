@@ -17,7 +17,7 @@ const Citas = sequelize.define("citas", {
         type: DataTypes.ENUM("pendiente", "completada", "cancelada"),
         defaultValue: "pendiente",
     },
-    timestamps: true,
+}, {timestamps: true,
 });
 
 Citas.belongsTo(Pacientes, {

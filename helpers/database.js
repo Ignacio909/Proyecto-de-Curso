@@ -16,7 +16,7 @@ const sequelize = new Sequelize(databaseName, user, password, {
 
 //Funcion para comprobar que salio bien
 sequelize
-    .autenticate()
+    .authenticate()
     .then(()=>{
         console.log("Conexion establecida correctamente")})
     .catch((err)=>{

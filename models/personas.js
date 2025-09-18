@@ -19,8 +19,9 @@ const Personas = sequelize.define("personas",{
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        validate: {isEmail: true}
+        validate: {isEmail: true},
     },
+}, {
     timestamps: true,  
 });
 module.exports = Personas;

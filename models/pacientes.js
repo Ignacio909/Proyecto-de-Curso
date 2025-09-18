@@ -1,6 +1,6 @@
 const { DataTypes, ENUM } = require ("sequelize");
 const sequelize = require("../helpers/database");
-const Personas = requiere("./personas");
+const Personas = require("./personas");
 
 const Pacientes = sequelize.define("pacientes", {
     nombre: {
@@ -20,7 +20,7 @@ const Pacientes = sequelize.define("pacientes", {
         allowNull: false,
         unique: true,
     },
-    timestamps: true,
+}, { timestamps: true,
 });
 
 Pacientes.belongsTo(Personas, {
