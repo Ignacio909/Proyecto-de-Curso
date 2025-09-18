@@ -29,8 +29,10 @@ console.log("Ha ocurrido un error al sincronizar los modelos: ", err);
 
 app.use(express.json());
 const registroClinicosRoutes = require("./routes/registros-clinicosRoutes.js");
+const historiaClinicaRoutes = require("./routes/historias-clinicasRoutes.js")
 
 
 app.use("/registros", registroClinicosRoutes);
+app.use("/historias", historiaClinicaRoutes);
 
-module.exportsn = app;
+module.exports = app;
