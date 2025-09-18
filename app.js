@@ -1,5 +1,5 @@
 const express = require('express')
-const app = express()
+const app = express();
 app.get('/',(req, res)=> {
     res.send('Hola, Mundo')
 })
@@ -26,3 +26,11 @@ console.log("Todos los modelos se sincronizaron correctamente.");
 }) .catch((err) => {
 console.log("Ha ocurrido un error al sincronizar los modelos: ", err); 
 });
+
+app.use(express.json());
+const registroClinicosRoutes = require("./routes/registros-clinicosRoutes.js");
+
+
+app.use("/registros", registroClinicosRoutes);
+
+module.exportsn = app;
