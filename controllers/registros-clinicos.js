@@ -1,4 +1,6 @@
-const {RegistroClinico, HistoriaClinica, Especialista} = require ("../models");
+const RegistroClinico = require ("../models/registros_clinicos");
+const HistoriaClinica = require ("../models/historias_clinicas");
+const Especialistas = require ("../models/especialistas");
 
 //Crear Registro Clinico
 const createRegistroClinico= async (req,res) => {
@@ -11,7 +13,7 @@ const createRegistroClinico= async (req,res) => {
             return res.status(404).json({message: "Historia clinica no encontrada"});
         }
         //Validamos que el especialista exista
-        const especialista = await Especialista.findByPK(especialistaId);
+        const especialista = await Especialistas.findByPK(especialistaId);
         if(!especialista) {
             return res.status(404).json({message: "Especialista no encontrado"});
         }
@@ -36,7 +38,7 @@ const getRegistrosClinicos = async (req, res) => {
         const registros = await RegistroClinico.findAll({
             include: [
                 {model: HistoriaClinica, as: "historiClinica"},
-                {model: Especialista, as: "especialista"},
+                {model: Especialistas, as: "especialista"},
             ],
         });
         res.json(registros);
@@ -51,7 +53,7 @@ const getRegistroClinicoById = async (req, res) => {
         const registro = await RegistroClinico.findByPk(req.params.id, {
             include: [
                 { model: HistoriaClinica, as: "historiaClinica" },
-                { model: Especialista, as: "especialista" },
+                { model: Especialistas, as: "especialista" },
             ],
         });
 

@@ -1,4 +1,6 @@
-const { HistoriaClinica, Paciente, RegistroClinico } = require("../models");
+const HistoriaClinica = require("../models/historias_clinicas");
+const RegistroClinico = require ("../models/registros_clinicos");
+const Paciente = require ("../models/pacientes");
 
 // Crear historia clínica
 const createHistoriaClinica = async (req, res) => {
@@ -102,10 +104,32 @@ const deleteHistoriaClinica = async (req, res) => {
     }
 };
 
+// Buscar historia clínica por id del paciente
+const getHistoriaClinicaByPaciente = async (req, res) => {
+    try {
+        const historia = await HistoriaClinica.findOne({
+            where: { pacienteId: req.params.pacienteId },
+            include: [
+                { model: Paciente, as: "paciente" },
+                { model: RegistroClinico, as: "registrosClinicos" },
+            ],
+        });
+
+        if (!historia) {
+            return res.status(404).json({ message: "Este paciente no tiene historia clínica" });
+        }
+
+        res.json(historia);
+    } catch (error) {
+        res.status(500).json({ message: "Error buscando historia clínica", error: error.message });
+    }
+};
+
 module.exports = {
     createHistoriaClinica,
     getHistoriasClinicas,
     getHistoriaClinicaById,
     updateHistoriaClinica,
     deleteHistoriaClinica,
+    getHistoriaClinicaByPaciente,
 }; 

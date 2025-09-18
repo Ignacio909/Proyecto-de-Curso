@@ -1,18 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const {
-    createRegistroClinico,
-    getRegistrosClinicos,
-    getRegistroClinicoById,
-    updateRegistroClinico,
-    deleteRegistroClinico,
-} = require("../controllers/registros-clinicos");
+const registroClinicosController = require("../controllers/registros-clinicos");
 
 // CRUD de Registros Clínicos
-router.post("/", createRegistroClinico);
-router.get("/", getRegistrosClinicos);
-router.get("/:id", getRegistroClinicoById);
-router.put("/:id", updateRegistroClinico);
-router.delete("/:id", deleteRegistroClinico);
+router.post("/", registroClinicosController.createRegistroClinico);
+router.get("/", registroClinicosController.getRegistrosClinicos);
+router.get("/:id",registroClinicosController.getRegistroClinicoById);
+router.put("/:id", registroClinicosController.updateRegistroClinico);
+router.delete("/:id", registroClinicosController.deleteRegistroClinico);
 
 module.exports = router;

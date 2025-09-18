@@ -2,7 +2,7 @@ const { DataTypes, ENUM } = require ("sequelize");
 const sequelize = require("../helpers/database");
 const Pacientes = require("./pacientes");
 
-const HistoriClinica = sequelize.define("historias_clinicas", {
+const HistoriaClinica = sequelize.define("historias_clinicas", {
     edad: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -30,12 +30,12 @@ const HistoriClinica = sequelize.define("historias_clinicas", {
 }, {timestamps: true,
 });
 
-HistoriClinica.belongsTo(Pacientes, {
+HistoriaClinica.belongsTo(Pacientes, {
     foreignKey: "pacienteId",
     onDelete: "CASCADE"
 });
-Pacientes.hasOne(HistoriClinica, {
+Pacientes.hasOne(HistoriaClinica, {
     foreignKey: "pacienteId"
 });
 
-module.exports= HistoriClinica;
+module.exports = HistoriaClinica;

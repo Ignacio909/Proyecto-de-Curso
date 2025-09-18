@@ -3,9 +3,7 @@ const app = express();
 app.get('/',(req, res)=> {
     res.send('Hola, Mundo')
 })
-app.listen(3000,()=>{
-    console.log('Servidor en el puerto 3000')
-})
+
 
 // Instancia de Sequelize para conectarse a la base de datos
 const sequelize = require("./helpers/database.js"); 
@@ -29,10 +27,17 @@ console.log("Ha ocurrido un error al sincronizar los modelos: ", err);
 
 app.use(express.json());
 const registroClinicosRoutes = require("./routes/registros-clinicosRoutes.js");
-const historiaClinicaRoutes = require("./routes/historias-clinicasRoutes.js")
+const historiaClinicaRoutes = require("./routes/historias-clinicasRoutes.js");
+const { swaggerDocs } = require('./swagger.js');
 
 
 app.use("/registros", registroClinicosRoutes);
 app.use("/historias", historiaClinicaRoutes);
+
+swaggerDocs(app);
+
+app.listen(3000,()=>{
+    console.log('Servidor http://localhost:3000')
+})
 
 module.exports = app;
