@@ -28,11 +28,13 @@ console.log("Ha ocurrido un error al sincronizar los modelos: ", err);
 app.use(express.json());
 const registroClinicosRoutes = require("./routes/registros-clinicosRoutes.js");
 const historiaClinicaRoutes = require("./routes/historias-clinicasRoutes.js");
+const citasRoutes = require("./routes/citasRoutes");
 const { swaggerDocs } = require('./swagger.js');
 
 
 app.use("/registros", registroClinicosRoutes);
 app.use("/historias", historiaClinicaRoutes);
+app.use("/citas", citasRoutes);
 
 swaggerDocs(app);
 

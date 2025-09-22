@@ -15,8 +15,9 @@ const Especialistas = require("./especialistas");
  *         - especialistaId
  *       properties:
  *         id:
- *           type: integer
- *           description: ID autogenerado
+ *           type: string
+ *           format: uuid
+ *           description: ID autogenerado (UUID)
  *         diagnostico:
  *           type: string
  *           description: Diagnóstico realizado
@@ -27,10 +28,12 @@ const Especialistas = require("./especialistas");
  *           type: string
  *           description: Observaciones adicionales
  *         historiaClinicaId:
- *           type: integer
+ *           type: string
+ *           format: uuid
  *           description: ID de la historia clínica asociada
  *         especialistaId:
- *           type: integer
+ *           type: string
+ *           format: uuid
  *           description: ID del especialista
  *         createdAt:
  *           type: string
@@ -41,47 +44,70 @@ const Especialistas = require("./especialistas");
  *           format: date-time
  *           description: Última actualización
  *       example:
- *         id: 1
+ *         id: "8b0a11a8-7e6d-4e03-a9c8-0b0bfb24b3ad"
  *         diagnostico: "Gripe común"
  *         tratamiento: "Reposo e hidratación"
  *         observaciones: "Paciente debe regresar en 7 días"
- *         historiaClinicaId: 3
- *         especialistaId: 2
+ *         historiaClinicaId: "3b2a1e22-1ad7-4c5b-9b61-d2d3f0b7f9b1"
+ *         especialistaId: "2a3c4d55-6e7f-8890-ab12-cd34ef56ab78"
  *         createdAt: "2025-09-18T12:00:00Z"
  *         updatedAt: "2025-09-18T12:00:00Z"
  */
 
 const RegistroClinico = sequelize.define("registros_clinicos", {
-    diagnostico: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-    },
-    tratamiento: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-    },
-    observaciones: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-    },
+	id: {
+		type: DataTypes.UUID,
+		defaultValue: DataTypes.UUIDV4,
+		primaryKey: true,
+	},
+	diagnostico: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+	},
+	tratamiento: {
+		type: DataTypes.TEXT,
+		allowNull: true,
+	},
+	observaciones: {
+		type: DataTypes.TEXT,
+		allowNull: true,
+	},
+	historiaClinicaId: {
+		type: DataTypes.UUID,
+		allowNull: false,
+		references: { model: HistoriaClinica, key: "id" },
+		onDelete: "CASCADE",
+		onUpdate: "CASCADE",
+	},
+	especialistaId: {
+		type: DataTypes.UUID,
+		allowNull: false,
+		references: { model: Especialistas, key: "id" },
+		onDelete: "CASCADE",
+		onUpdate: "CASCADE",
+	},
 }, {    timestamps: true,
 });
 
 RegistroClinico.belongsTo(HistoriaClinica, {
-    foreignKey: "historiaClinicaId",
-    onDelete: "CASCADE"
+	foreignKey: "historiaClinicaId",
+	as: "historiaClinica",
+	onDelete: "CASCADE"
 });
 HistoriaClinica.hasMany(RegistroClinico, {
-    foreignKey: "historiaClinicaId"
+	foreignKey: "historiaClinicaId",
+	as: "registrosClinicos"
 });
 
 RegistroClinico.belongsTo(Especialistas, {
-    foreignKey: "especialistaId",
-    onDelete: "CASCADE"
+	foreignKey: "especialistaId",
+	as: "especialista",
+	onDelete: "CASCADE"
 });
 Especialistas.hasMany(RegistroClinico, {
-    foreignKey: "especialistaId",
-    onDelete: "CASCADE"
+	foreignKey: "especialistaId",
+	as: "registrosClinicos",
+	onDelete: "CASCADE"
 });
 
 module.exports = RegistroClinico;
