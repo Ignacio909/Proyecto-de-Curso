@@ -1,0 +1,23 @@
+{
+    "development": {
+        "username": "postgres",
+        "password": "buama.2003",
+        "database": "Caibh_bd",
+        "host": "127.0.0.1",
+        "dialect": "postgres"
+    },
+    "test": {
+        "username": "tu_usuario",
+        "password": "tu_contrasena",
+        "database": "nombre_base_datos_test",
+        "host": "127.0.0.1",
+        "dialect": "postgres"
+    },
+    "production": {
+        "username": "tu_usuario",
+        "password": "tu_contrasena",
+        "database": "nombre_base_datos_prod",
+        "host": "127.0.0.1",
+        "dialect": "postgres"
+    }
+}

@@ -4,12 +4,18 @@ const cors = require('cors')
 const registroClinicosRoutes = require("./routes/registros-clinicosRoutes.js");
 const historiaClinicaRoutes = require("./routes/historias-clinicasRoutes.js");
 const citasRoutes = require("./routes/citasRoutes");
+const pacientesRoutes = require("./routes/pacientesRoutes.js");
+const especialistasRoutes = require("./routes/especialistasRoutes.js");
 const { swaggerDocs } = require('./swagger.js');
-const allowOrigin = ['http://localhost/3000'];
+const allowOrigin = ['http://localhost:3000'];
 
-app.get('/',(req, res)=> {
-    res.send('Hola, Mundo')
-})
+const corsOptions = {
+    origin: allowOrigin,
+    methods: ["GET","POST","PUT","DELETE"],
+    credentials: true,
+};
+
+
 
 
 // Instancia de Sequelize para conectarse a la base de datos
@@ -22,6 +28,7 @@ const HistoriClinicas = require("./models/historias_clinicas.js");
 const Pacientes = require("./models/pacientes.js");
 const Personas = require("./models/personas.js");
 const RegistroClinicos = require("./models/registros_clinicos.js");
+const errorHandler = require('./middlewares/errorHandler.js');
 
 // Sincronizar los modelos para verificar la conexión con la base de datos
 sequelize
@@ -35,20 +42,22 @@ console.log("Ha ocurrido un error al sincronizar los modelos: ", err);
 app.use(express.json());
 //Cors
 app.use(cors(corsOptions));
-//Configuracion de Cors
-app.use(
-    cors({
-        origin: allowOrigin,
-        methods: ["GET","POST","PUT","DELETE"],
-        credentials: true,// Permite el envio de cookies
-    })
-);
 
+//Rutas
 app.use("/registros", registroClinicosRoutes);
 app.use("/historias", historiaClinicaRoutes);
 app.use("/citas", citasRoutes);
+app.use("/pacientes", pacientesRoutes);
+app.use("/especialistas", especialistasRoutes);
+
+//Middelware Manejo de Errores
+app.use(errorHandler);
 
 swaggerDocs(app);
+
+app.get('/',(req, res)=> {
+    res.send('Hola, Mundo')
+})
 
 app.listen(3000,()=>{
     console.log('Servidor http://localhost:3000')

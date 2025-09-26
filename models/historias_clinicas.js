@@ -35,7 +35,7 @@
  *           type: string
  *           format: date-time
  */
-const { DataTypes, ENUM } = require ("sequelize");
+const { DataTypes } = require ("sequelize");
 const sequelize = require("../helpers/database");
 const Pacientes = require("./pacientes");
 
@@ -72,6 +72,7 @@ const HistoriaClinica = sequelize.define("historias_clinicas", {
 	pacienteId: {
 		type: DataTypes.UUID,
 		allowNull: false,
+		unique: true,
 		references: { model: Pacientes, key: "id" },
 		onDelete: "CASCADE",
 		onUpdate: "CASCADE",

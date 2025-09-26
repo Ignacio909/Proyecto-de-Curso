@@ -23,7 +23,7 @@
  *           type: string
  *           format: date-time
  */
-const { DataTypes, ENUM } = require ("sequelize");
+const { DataTypes } = require ("sequelize");
 const sequelize = require("../helpers/database");
 const Personas = require("./personas");
 
@@ -41,6 +41,7 @@ const Especialistas = sequelize.define("especialistas",{
 	personaId: {
 		type: DataTypes.UUID,
 		allowNull: false,
+		unique: true,
 		references: { model: Personas, key: "id" },
 		onDelete: "CASCADE",
 		onUpdate: "CASCADE",

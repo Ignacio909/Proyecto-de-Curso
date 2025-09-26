@@ -31,7 +31,7 @@
  *           type: string
  *           format: date-time
  */
-const { DataTypes, ENUM } = require ("sequelize");
+const { DataTypes } = require ("sequelize");
 const sequelize = require("../helpers/database");
 
 const Personas = sequelize.define("personas",{
