@@ -84,7 +84,7 @@ Citas.belongsTo(Pacientes, {
 });
 Pacientes.hasMany(Citas, {
 	foreignKey: "pacienteId",
-	as: "citas"
+	as: "citasPaciente"
 });
 
 Citas.belongsTo(Especialistas, {
@@ -95,7 +95,7 @@ Citas.belongsTo(Especialistas, {
 });
 Especialistas.hasMany(Citas, {
 	foreignKey: "especialistaId",
-	as: "citas"
+	as: "citasEspecialista"
 });
 
 // Relación many-to-many a través de Citas

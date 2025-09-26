@@ -1,5 +1,12 @@
 const express = require('express')
 const app = express();
+const cors = require('cors')
+const registroClinicosRoutes = require("./routes/registros-clinicosRoutes.js");
+const historiaClinicaRoutes = require("./routes/historias-clinicasRoutes.js");
+const citasRoutes = require("./routes/citasRoutes");
+const { swaggerDocs } = require('./swagger.js');
+const allowOrigin = ['http://localhost/3000'];
+
 app.get('/',(req, res)=> {
     res.send('Hola, Mundo')
 })
@@ -26,11 +33,16 @@ console.log("Ha ocurrido un error al sincronizar los modelos: ", err);
 });
 
 app.use(express.json());
-const registroClinicosRoutes = require("./routes/registros-clinicosRoutes.js");
-const historiaClinicaRoutes = require("./routes/historias-clinicasRoutes.js");
-const citasRoutes = require("./routes/citasRoutes");
-const { swaggerDocs } = require('./swagger.js');
-
+//Cors
+app.use(cors(corsOptions));
+//Configuracion de Cors
+app.use(
+    cors({
+        origin: allowOrigin,
+        methods: ["GET","POST","PUT","DELETE"],
+        credentials: true,// Permite el envio de cookies
+    })
+);
 
 app.use("/registros", registroClinicosRoutes);
 app.use("/historias", historiaClinicaRoutes);
