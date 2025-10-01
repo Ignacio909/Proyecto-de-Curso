@@ -10,7 +10,7 @@ const errorHandler = (err, req, res, next)=>{
     );//Registra el error
 
     res.status(err.statusCode).json({
-        //Envia la Respuesta l cliente
+        //Envia la Respuesta al cliente
         status: err.status,
         message: err.message,
     });

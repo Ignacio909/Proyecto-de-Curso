@@ -12,6 +12,10 @@
  *         id:
  *           type: string
  *           format: uuid
+ *         nombre: 
+ *           type: string
+ *         apellidos:
+ *           type: string	
  *         edad:
  *           type: integer
  *         sexo:
@@ -44,6 +48,14 @@ const HistoriaClinica = sequelize.define("historias_clinicas", {
 		type: DataTypes.UUID,
 		defaultValue: DataTypes.UUIDV4,
 		primaryKey: true,
+	},
+	nombre: {
+		type: DataTypes.STRING,
+		allowNull: false,
+	},
+	apellidos: {
+		type: DataTypes.STRING,
+		allowNull: false,
 	},
 	edad: {
 		type: DataTypes.INTEGER,

@@ -1,25 +1,28 @@
 const HistoriaClinica = require("../models/historias_clinicas");
 const RegistroClinico = require ("../models/registros_clinicos");
 const Paciente = require ("../models/pacientes");
+const AppError = require ("../errors/AppError");
 
 // Crear historia clínica
 const createHistoriaClinica = async (data) => {
-    const { pacienteId, edad, sexo, raza, direccion, enfermedades, antecedentes } = data;
+    const { pacienteId, nombre, apellidos, edad, sexo, raza, direccion, enfermedades, antecedentes } = data;
 
     // Validar que el paciente exista
     const paciente = await Paciente.findByPk(pacienteId);
         if (!paciente) {
-            throw new Error( "Paciente no encontrado" );
+            throw new AppError( "Paciente no encontrado" );
         }
 
     // Validar que no tenga ya una historia clínica
     const existe = await HistoriaClinica.findOne({ where: { pacienteId } });
         if (existe) {
-            throw new Error ("El paciente ya tiene una historia clínica" );
+            throw new AppError("El paciente ya tiene una historia clínica" );
         }
 
     return await HistoriaClinica.create({
             pacienteId,
+            nombre,
+            apellidos,
             edad,
             sexo,
             raza,

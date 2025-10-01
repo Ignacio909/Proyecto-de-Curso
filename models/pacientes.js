@@ -4,20 +4,14 @@
  *   schemas:
  *     Paciente:
  *       type: object
- *       required:
- *         - nombre
- *         - apellidos
+ *       required:         
  *         - telefono
  *         - carnetIdentidad
  *         - personaId
  *       properties:
  *         id:
  *           type: string
- *           format: uuid
- *         nombre:
- *           type: string
- *         apellidos:
- *           type: string
+ *           format: uuid 
  *         telefono:
  *           type: string
  *         carnetIdentidad:
@@ -42,14 +36,7 @@ const Pacientes = sequelize.define("pacientes", {
 		defaultValue: DataTypes.UUIDV4,
 		primaryKey: true,
 	},
-	nombre: {
-		type: DataTypes.STRING,
-		allowNull: false,
-	},
-	apellidos: {
-		type: DataTypes.STRING,
-		allowNull: false,
-	},
+	
 	telefono: {
 		type: DataTypes.STRING,
 		allowNull: false,

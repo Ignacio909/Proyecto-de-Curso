@@ -1,21 +1,20 @@
 "use strict";
 
+const {v4: uuidv4} =require('uuid');
 module.exports = {
-	async up(queryInterface, Sequelize) {
-		const now = new Date();
-		await queryInterface.bulkInsert("personas", [
-			{
-				usuario: "admin",
-				contrasena: "admin123",
-				rol: "admin",
-				correo: "admin@correo.com",
-				createdAt: now,
-				updatedAt: now,
-			},
-		]);
+	up: async(queryInterface, Sequelize)=> {
+		return queryInterface.bulkInsert("personas", [{
+			id: uuidv4(),
+			usuario: "admin",
+			contrasena: "admin123",
+			rol: "admin",
+			correo: "admin@correo.com",
+			createdAt: new Date(),
+			updatedAt: new Date()
+		}],{});
 	},
 
-	async down(queryInterface, Sequelize) {
-		await queryInterface.bulkDelete("personas", { usuario: "admin" }, {});
+	down: async(queryInterface, Sequelize) => {
+		return queryInterface.bulkDelete("personas", { usuario: "admin" }, {});
 	},
 }; 

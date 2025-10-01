@@ -44,8 +44,8 @@ app.use(express.json());
 app.use(cors(corsOptions));
 
 //Rutas
-app.use("/registros", registroClinicosRoutes);
-app.use("/historias", historiaClinicaRoutes);
+app.use("/registros-clinicos", registroClinicosRoutes);
+app.use("/historias-clinicas", historiaClinicaRoutes);
 app.use("/citas", citasRoutes);
 app.use("/pacientes", pacientesRoutes);
 app.use("/especialistas", especialistasRoutes);

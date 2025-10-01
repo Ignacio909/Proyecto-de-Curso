@@ -1,6 +1,7 @@
 const RegistroClinico = require ("../models/registros_clinicos");
 const HistoriaClinica = require ("../models/historias_clinicas");
 const Especialistas = require ("../models/especialistas");
+const AppError = require ("../errors/AppError");
 
 //Crear Registro Clinico
 const createRegistroClinico= async (registro) => {
@@ -11,12 +12,12 @@ const createRegistroClinico= async (registro) => {
         //Validamos que la historia exista
         const historia = await HistoriaClinica.findByPk(historiaClinicaId);
         if(!historia){
-            throw new Error ("Historia clinica no encontrada");
+            throw new AppError("Historia clinica no encontrada", 404);
         }
         //Validamos que el especialista exista
         const especialista = await Especialistas.findByPk(especialistaId);
         if(!especialista) {
-            throw new Error("Especialista no encontrado");
+            throw new AppError("Especialista no encontrado", 404);
         }
 
         return await RegistroClinico.create({
