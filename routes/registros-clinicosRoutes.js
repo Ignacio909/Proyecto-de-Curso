@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const registroClinicosController = require("../controllers/registros-clinicos");
+const AppError = require("../errors/AppError");
+const logger = require("../loggers/loggerWinston");
 
 /**
  * @swagger
@@ -32,12 +34,16 @@ const registroClinicosController = require("../controllers/registros-clinicos");
  *         description: Error interno del servidor
  */
 // CRUD de Registros Clínicos
-router.post("/",async (req,res) => {
-    try{
-        const registro = await registroClinicosController.createRegistroClinico(req.body);    
+router.post("/", async (req, res, next) => {
+    try {
+        const registro = await registroClinicosController.createRegistroClinico(req.body);
+        
+        // Log de éxito
+        logger.info(`Registro clínico creado - ID: ${registro.id} - IP: ${req.ip}`);
+        
         res.status(201).json(registro);
-    } catch(error) {
-        res.status(500).json({message: "Error al crear el registro", error: error.message});
+    } catch (error) {
+        next(new AppError("Error al crear el registro: " + error.message, 500));
     }
 });
 
@@ -59,12 +65,16 @@ router.post("/",async (req,res) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
     try {
         const registros = await registroClinicosController.getRegistrosClinicos();
+        
+        // Log de éxito
+        logger.info(`Lista de registros clínicos obtenida - Total: ${registros.length} - IP: ${req.ip}`);
+        
         res.json(registros);
     } catch (error) {
-        res.status(500).json({ message: "Error obteniendo registros clínicos", error: error.message });
+        next(new AppError("Error obteniendo registros clínicos: " + error.message, 500));
     }
 });
 
@@ -94,15 +104,20 @@ router.get("/", async (req, res) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
     try {
         const registro = await registroClinicosController.getRegistroClinicoById(req.params.id);
+        
         if (!registro) {
-            return res.status(404).json({ message: "Registro clínico no encontrado" });
+            return next(new AppError("Registro clínico no encontrado", 404));
         }
+        
+        // Log de éxito
+        logger.info(`Registro clínico obtenido - ID: ${req.params.id} - IP: ${req.ip}`);
+        
         res.json(registro);
     } catch (error) {
-        res.status(500).json({ message: "Error obteniendo el registro clínico", error: error.message });
+        next(new AppError("Error obteniendo el registro clínico: " + error.message, 500));
     }
 });
 
@@ -138,15 +153,20 @@ router.get("/:id", async (req, res) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/:id", async (req, res) => {
+router.put("/:id", async (req, res, next) => {
     try {
         const actualizado = await registroClinicosController.updateRegistroClinico(req.params.id, req.body);
+        
         if (!actualizado) {
-            return res.status(404).json({ message: "Registro clínico no encontrado" });
+            return next(new AppError("Registro clínico no encontrado", 404));
         }
+        
+        // Log de éxito
+        logger.info(`Registro clínico actualizado - ID: ${req.params.id} - IP: ${req.ip}`);
+        
         res.json(actualizado);
     } catch (error) {
-        res.status(500).json({ message: "Error actualizando registro clínico", error: error.message });
+        next(new AppError("Error actualizando registro clínico: " + error.message, 500));
     }
 });
 
@@ -180,15 +200,20 @@ router.put("/:id", async (req, res) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", async (req, res, next) => {
     try {
         const eliminado = await registroClinicosController.deleteRegistroClinico(req.params.id);
+        
         if (!eliminado) {
-            return res.status(404).json({ message: "Registro clínico no encontrado" });
+            return next(new AppError("Registro clínico no encontrado", 404));
         }
+        
+        // Log de éxito
+        logger.info(`Registro clínico eliminado - ID: ${req.params.id} - IP: ${req.ip}`);
+        
         res.json({ message: "Registro clínico eliminado correctamente" });
     } catch (error) {
-        res.status(500).json({ message: "Error eliminando registro clínico", error: error.message });
+        next(new AppError("Error eliminando registro clínico: " + error.message, 500));
     }
 });
 

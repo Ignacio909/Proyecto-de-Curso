@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const historiaClinicaControllers = require("../controllers/historias-clinicas");
+const AppError = require("../errors/AppError");
+const logger = require("../loggers/loggerWinston");
 
 /**
  * @swagger
@@ -23,17 +25,27 @@ const historiaClinicaControllers = require("../controllers/historias-clinicas");
  *             $ref: '#/components/schemas/HistoriaClinica'
  *     responses:
  *       201:
- *         description: Creada
+ *         description: Historia clínica creada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HistoriaClinica'
  *       400:
  *         description: Error de validación
+ *       500:
+ *         description: Error interno del servidor
  */
 // CRUD de Historias Clínicas
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
     try {
         const historia = await historiaClinicaControllers.createHistoriaClinica(req.body);
+        
+        // Log de éxito
+        logger.info(`Historia clínica creada - ID: ${historia.id} - IP: ${req.ip}`);
+        
         res.status(201).json(historia);
     } catch (error) {
-        res.status(400).json({ message: "Error creando historia clínica", error: error.message });
+        next(new AppError("Error creando historia clínica: " + error.message, 400));
     }
 });
 
@@ -47,12 +59,16 @@ router.post("/", async (req, res) => {
  *       200:
  *         description: OK
  */
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
     try {
         const historias = await historiaClinicaControllers.getHistoriasClinicas();
+        
+        // Log de éxito
+        logger.info(`Lista de historias clínicas obtenida - Total: ${historias.length} - IP: ${req.ip}`);
+        
         res.json(historias);
     } catch (error) {
-        res.status(500).json({ message: "Error obteniendo historias clínicas", error: error.message });
+        next(new AppError("Error obteniendo historias clínicas: " + error.message, 500));
     }
 });
 
@@ -69,22 +85,33 @@ router.get("/", async (req, res) => {
  *         schema:
  *           type: string
  *           format: uuid
+ *         description: ID único de la historia clínica
  *     responses:
  *       200:
- *         description: OK
+ *         description: Historia clínica encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HistoriaClinica'
  *       404:
- *         description: No encontrada
+ *         description: Historia clínica no encontrada
+ *       500:
+ *         description: Error interno del servidor
  */
-router.get("/:id",async (req, res) => {
+router.get("/:id",async (req, res, next) => {
     try {
         const historia = await historiaClinicaControllers.getHistoriaClinicaById(req.params.id);
+        
         if (!historia) {
-            return res.status(404).json({ message: "Historia clínica no encontrada" });
+            return next(new AppError("Historia clínica no encontrada", 404));
         }
+        
+        // Log de éxito
+        logger.info(`Historia clínica obtenida - ID: ${req.params.id} - IP: ${req.ip}`);
 
         res.json(historia);
     } catch (error) {
-        res.status(500).json({ message: "Error obteniendo historia clínica", error: error.message });
+        next(new AppError("Error obteniendo historia clínica: " + error.message, 500));
     } 
 });
 
@@ -101,6 +128,7 @@ router.get("/:id",async (req, res) => {
  *         schema:
  *           type: string
  *           format: uuid
+ *         description: ID único de la historia clínica
  *     requestBody:
  *       required: true
  *       content:
@@ -109,19 +137,30 @@ router.get("/:id",async (req, res) => {
  *             $ref: '#/components/schemas/HistoriaClinica'
  *     responses:
  *       200:
- *         description: OK
+ *         description: Historia clínica actualizada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HistoriaClinica'
  *       404:
- *         description: No encontrada
+ *         description: Historia clínica no encontrada
+ *       500:
+ *         description: Error interno del servidor
  */
-router.put("/:id", async (req, res) => {
+router.put("/:id", async (req, res, next) => {
     try {
         const historia = await historiaClinicaControllers.updateHistoriaClinica(req.params.id, req.body);
+        
         if (!historia) {
-            return res.status(404).json({ message: "Historia clínica no encontrada" });
+            return next(new AppError("Historia clínica no encontrada", 404));
         }
+        
+        // Log de éxito
+        logger.info(`Historia clínica actualizada - ID: ${req.params.id} - IP: ${req.ip}`);
+        
         res.json(historia);
     } catch (error) {
-        res.status(500).json({ message: "Error actualizando historia clínica", error: error.message });
+        next(new AppError("Error actualizando historia clínica: " + error.message, 500));
     }
 });
 
@@ -138,21 +177,37 @@ router.put("/:id", async (req, res) => {
  *         schema:
  *           type: string
  *           format: uuid
+ *         description: ID único de la historia clínica
  *     responses:
  *       200:
- *         description: Eliminada
+ *         description: Historia clínica eliminada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Historia clínica eliminada correctamente"
  *       404:
- *         description: No encontrada
+ *         description: Historia clínica no encontrada
+ *       500:
+ *         description: Error interno del servidor
  */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", async (req, res, next) => {
     try {
         const eliminando = await historiaClinicaControllers.deleteHistoriaClinica(req.params.id);
+        
         if (!eliminando) {
-            return res.status(404).json({ message: "Historia clínica no encontrada" });
+            return next(new AppError("Historia clínica no encontrada", 404));
         }
+        
+        // Log de éxito
+        logger.info(`Historia clínica eliminada - ID: ${req.params.id} - IP: ${req.ip}`);
+        
         res.json({ message: "Historia clínica eliminada correctamente" });
     } catch (error) {
-        res.status(500).json({ message: "Error eliminando historia clínica", error: error.message });
+        next(new AppError("Error eliminando historia clínica: " + error.message, 500));
     }
 });
 
@@ -169,22 +224,34 @@ router.delete("/:id", async (req, res) => {
  *         schema:
  *           type: string
  *           format: uuid
+ *         description: ID del paciente
  *     responses:
  *       200:
- *         description: OK
+ *         description: Historia clínica encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HistoriaClinica'
  *       404:
- *         description: No encontrada
+ *         description: Este paciente no tiene historia clínica
+ *       500:
+ *         description: Error interno del servidor
  */
 // Buscar historia clínica por pacienteId
-router.get("/paciente/:pacienteId", async (req, res) => {
+router.get("/paciente/:pacienteId", async (req, res, next) => {
     try {
         const historia = await historiaClinicaControllers.findHistoriaClinicaByPacienteId(req.params.pacienteId);
+        
         if (!historia) {
-            return res.status(404).json({ message: "Este paciente no tiene historia clínica" });
+            return next(new AppError("Este paciente no tiene historia clínica", 404));
         }
+        
+        // Log de éxito
+        logger.info(`Historia clínica obtenida por pacienteId - PacienteID: ${req.params.pacienteId} - IP: ${req.ip}`);
+        
         res.json(historia);
     } catch (error) {
-        res.status(500).json({ message: "Error buscando historia clínica", error: error.message });
+        next(new AppError("Error buscando historia clínica: " + error.message, 500));
     }
 });
 

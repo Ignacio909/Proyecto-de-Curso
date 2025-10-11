@@ -8,6 +8,7 @@ const pacientesRoutes = require("./routes/pacientesRoutes.js");
 const especialistasRoutes = require("./routes/especialistasRoutes.js");
 const { swaggerDocs } = require('./swagger.js');
 const allowOrigin = ['http://localhost:3000'];
+require ("dotenv").config();
 
 const corsOptions = {
     origin: allowOrigin,
@@ -25,21 +26,23 @@ const sequelize = require("./helpers/database.js");
 const Citas = require("./models/citas.js"); 
 const Especialistas = require("./models/especialistas.js"); 
 const HistoriClinicas = require("./models/historias_clinicas.js");
-const Pacientes = require("./models/pacientes.js");
+const Pacientes = require ("./models/pacientes.js");
 const Personas = require("./models/personas.js");
 const RegistroClinicos = require("./models/registros_clinicos.js");
 const errorHandler = require('./middlewares/errorHandler.js');
+const logger = require('./loggers/loggerWinston.js');
 
 // Sincronizar los modelos para verificar la conexión con la base de datos
 sequelize
 .sync({ alter: true })
 .then(() => {
-console.log("Todos los modelos se sincronizaron correctamente.");
+    logger.info("Todos los modelos se sincronizaron correctamente.");
 }) .catch((err) => {
-console.log("Ha ocurrido un error al sincronizar los modelos: ", err); 
+    logger.error("Ha ocurrido un error al sincronizar los modelos: ", err); 
 });
 
 app.use(express.json());
+
 //Cors
 app.use(cors(corsOptions));
 

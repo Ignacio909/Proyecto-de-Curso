@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const pacientesController = require("../controllers/pacientes");
+const pacientesController = require ("../controllers/pacientes");
+const AppError = require ("../errors/AppError");
+const logger = require("../loggers/loggerWinston");
 
 /**
  * @swagger
@@ -38,6 +40,12 @@ const pacientesController = require("../controllers/pacientes");
  *                 type: string
  *                 format: email
  *                 description: Correo electrónico
+ *               nombre:
+ *                 type: string
+ *                 description: Nombre del paciente
+ *               apellidos:
+ *                 type: string
+ *                 description: Apellidos del paciente
  *               telefono:
  *                 type: string
  *                 description: Número de teléfono
@@ -56,17 +64,23 @@ const pacientesController = require("../controllers/pacientes");
  *       500:
  *         description: Error interno del servidor
  */
-// Crear paciente (crea persona + paciente)
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
 	try {
 		const { usuario, contrasena, correo, nombre, apellidos, telefono, carnetIdentidad } = req.body;
+		
+		// Validación de campos requeridos
 		if (!usuario || !contrasena || !correo || !telefono || !carnetIdentidad) {
-			return res.status(400).json({ message: "Campos requeridos faltantes" });
+			return next(new AppError("Campos requeridos faltantes", 400));
 		}
+		
 		const paciente = await pacientesController.createPaciente({ usuario, contrasena, correo, nombre, apellidos, telefono, carnetIdentidad });
+		
+		// Log de éxito
+		logger.info(`Paciente creado exitosamente - ID: ${paciente.id} - Usuario: ${usuario} - IP: ${req.ip}`);
+		
 		res.status(201).json(paciente);
 	} catch (error) {
-		res.status(500).json({ message: "Error creando paciente", error: error.message });
+		next(new AppError("Error creando paciente: " + error.message, 500));
 	}
 });
 
@@ -88,16 +102,18 @@ router.post("/", async (req, res) => {
  *       500:
  *         description: Error interno del servidor
  */
-// Listar
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
 	try {
 		const pacientes = await pacientesController.getPacientes();
+		
+		// Log de éxito
+		logger.info(`Lista de pacientes obtenida - Total: ${pacientes.length} - IP: ${req.ip}`);
+		
 		res.json(pacientes);
 	} catch (error) {
-		res.status(500).json({ message: "Error obteniendo pacientes", error: error.message });
+		next(new AppError("Error obteniendo pacientes: " + error.message, 500));
 	}
 });
-
 
 /**
  * @swagger
@@ -125,14 +141,20 @@ router.get("/", async (req, res) => {
  *       500:
  *         description: Error interno del servidor
  */
-// Obtener por ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
 	try {
 		const paciente = await pacientesController.getPacienteById(req.params.id);
-		if (!paciente) return res.status(404).json({ message: "Paciente no encontrado" });
+		
+		if (!paciente) {
+			return next(new AppError("Paciente no encontrado", 404));
+		}
+		
+		// Log de éxito
+		logger.info(`Paciente obtenido - ID: ${req.params.id} - IP: ${req.ip}`);
+		
 		res.json(paciente);
 	} catch (error) {
-		res.status(500).json({ message: "Error obteniendo paciente", error: error.message });
+		next(new AppError("Error obteniendo paciente: " + error.message, 500));
 	}
 });
 
@@ -164,6 +186,10 @@ router.get("/:id", async (req, res) => {
  *               correo:
  *                 type: string
  *                 format: email
+ *               nombre:
+ *                 type: string
+ *               apellidos:
+ *                 type: string
  *               telefono:
  *                 type: string
  *               carnetIdentidad:
@@ -180,14 +206,20 @@ router.get("/:id", async (req, res) => {
  *       500:
  *         description: Error interno del servidor
  */
-// Actualizar
-router.put("/:id", async (req, res) => {
+router.put("/:id", async (req, res, next) => {
 	try {
 		const actualizado = await pacientesController.updatePaciente(req.params.id, req.body);
-		if (!actualizado) return res.status(404).json({ message: "Paciente no encontrado" });
+		
+		if (!actualizado) {
+			return next(new AppError("Paciente no encontrado", 404));
+		}
+		
+		// Log de éxito
+		logger.info(`Paciente actualizado - ID: ${req.params.id} - IP: ${req.ip}`);
+		
 		res.json(actualizado);
 	} catch (error) {
-		res.status(500).json({ message: "Error actualizando paciente", error: error.message });
+		next(new AppError("Error actualizando paciente: " + error.message, 500));
 	}
 });
 
@@ -221,15 +253,21 @@ router.put("/:id", async (req, res) => {
  *       500:
  *         description: Error interno del servidor
  */
-// Eliminar
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", async (req, res, next) => {
 	try {
 		const eliminado = await pacientesController.deletePaciente(req.params.id);
-		if (!eliminado) return res.status(404).json({ message: "Paciente no encontrado" });
+		
+		if (!eliminado) {
+			return next(new AppError("Paciente no encontrado", 404));
+		}
+		
+		// Log de éxito
+		logger.info(`Paciente eliminado - ID: ${req.params.id} - IP: ${req.ip}`);
+		
 		res.json({ message: "Paciente eliminado correctamente" });
 	} catch (error) {
-		res.status(500).json({ message: "Error eliminando paciente", error: error.message });
+		next(new AppError("Error eliminando paciente: " + error.message, 500));
 	}
 });
 
-module.exports = router; 
+module.exports = router;

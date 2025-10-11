@@ -4,6 +4,8 @@ const citasController = require("../controllers/citas");
 const Citas = require("../models/citas");
 const Pacientes = require("../models/pacientes");
 const Especialistas = require("../models/especialistas");
+const AppError = require("../errors/AppError");
+const logger = require("../loggers/loggerWinston");
 
 // Validadores simples
 const isValidDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
@@ -40,45 +42,49 @@ const isValidEstado = (value) => ["pendiente", "completada", "cancelada"].includ
  *         description: Conflicto de agenda
  */
 // Crear cita
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
     try {
         const { fecha, hora, estado = "pendiente", pacienteId, especialistaId } = req.body;
 
         if (!fecha || !isValidDate(fecha)) {
-            return res.status(400).json({ message: "'fecha' es requerida en formato YYYY-MM-DD" });
+            return next(new AppError("'fecha' es requerida en formato YYYY-MM-DD", 400));
         }
         if (!hora || !isValidTime(hora)) {
-            return res.status(400).json({ message: "'hora' es requerida en formato HH:mm o HH:mm:ss" });
+            return next(new AppError("'hora' es requerida en formato HH:mm o HH:mm:ss", 400));
         }
         if (estado && !isValidEstado(estado)) {
-            return res.status(400).json({ message: "'estado' inválido" });
+            return next(new AppError("'estado' inválido", 400));
         }
         if (!pacienteId) {
-            return res.status(400).json({ message: "'pacienteId' es requerido" });
+            return next(new AppError("'pacienteId' es requerido", 400));
         }
         if (!especialistaId) {
-            return res.status(400).json({ message: "'especialistaId' es requerido" });
+            return next(new AppError("'especialistaId' es requerido", 400));
         }
 
         const paciente = await Pacientes.findByPk(pacienteId);
         if (!paciente) {
-            return res.status(404).json({ message: "Paciente no encontrado" });
+            return next(new AppError("Paciente no encontrado", 404));
         }
         const especialista = await Especialistas.findByPk(especialistaId);
         if (!especialista) {
-            return res.status(404).json({ message: "Especialista no encontrado" });
+            return next(new AppError("Especialista no encontrado", 404));
         }
 
         // Verificar conflicto de agenda: misma fecha/hora con el mismo especialista
         const conflicto = await Citas.findOne({ where: { fecha, hora, especialistaId } });
         if (conflicto) {
-            return res.status(409).json({ message: "Conflicto de agenda: el especialista ya tiene una cita en ese horario" });
+            return next(new AppError("Conflicto de agenda: el especialista ya tiene una cita en ese horario", 409));
         }
 
         const cita = await citasController.createCita({ fecha, hora, estado, pacienteId, especialistaId });
+        
+        // Log de éxito
+        logger.info(`Cita creada - ID: ${cita.id} - Fecha: ${fecha} - Hora: ${hora} - IP: ${req.ip}`);
+        
         res.status(201).json(cita);
     } catch (error) {
-        res.status(500).json({ message: "Error creando la cita", error: error.message });
+        next(new AppError("Error creando la cita: " + error.message, 500));
     }
 });
 
@@ -93,12 +99,16 @@ router.post("/", async (req, res) => {
  *         description: Lista de citas
  */
 // Listar citas
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
     try {
         const citas = await citasController.getCitas();
+        
+        // Log de éxito
+        logger.info(`Lista de citas obtenida - Total: ${citas.length} - IP: ${req.ip}`);
+        
         res.json(citas);
     } catch (error) {
-        res.status(500).json({ message: "Error obteniendo citas", error: error.message });
+        next(new AppError("Error obteniendo citas: " + error.message, 500));
     }
 });
 
@@ -115,22 +125,34 @@ router.get("/", async (req, res) => {
  *         schema:
  *           type: string
  *           format: uuid
+ *         description: ID único de la cita
  *     responses:
  *       200:
  *         description: Cita encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cita'
  *       404:
  *         description: Cita no encontrada
+ *       500:
+ *         description: Error interno del servidor
  */
 // Obtener cita por ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
     try {
         const cita = await citasController.getCitaById(req.params.id);
+        
         if (!cita) {
-            return res.status(404).json({ message: "Cita no encontrada" });
+            return next(new AppError("Cita no encontrada", 404));
         }
+        
+        // Log de éxito
+        logger.info(`Cita obtenida - ID: ${req.params.id} - IP: ${req.ip}`);
+        
         res.json(cita);
     } catch (error) {
-        res.status(500).json({ message: "Error obteniendo la cita", error: error.message });
+        next(new AppError("Error obteniendo la cita: " + error.message, 500));
     }
 });
 
@@ -147,63 +169,95 @@ router.get("/:id", async (req, res) => {
  *         schema:
  *           type: string
  *           format: uuid
+ *         description: ID único de la cita
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Cita'
+ *             type: object
+ *             properties:
+ *               fecha:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de la cita (YYYY-MM-DD)
+ *               hora:
+ *                 type: string
+ *                 description: Hora de la cita (HH:mm)
+ *               estado:
+ *                 type: string
+ *                 enum: [pendiente, completada, cancelada]
+ *               pacienteId:
+ *                 type: string
+ *                 format: uuid
+ *               especialistaId:
+ *                 type: string
+ *                 format: uuid
  *     responses:
  *       200:
  *         description: Cita actualizada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cita'
+ *       400:
+ *         description: Validación fallida
  *       404:
- *         description: Cita no encontrada
+ *         description: Cita, Paciente o Especialista no encontrado
+ *       409:
+ *         description: Conflicto de agenda
+ *       500:
+ *         description: Error interno del servidor
  */
 // Actualizar cita
-router.put("/:id", async (req, res) => {
+router.put("/:id", async (req, res, next) => {
     try {
         const { fecha, hora, estado, pacienteId, especialistaId } = req.body;
 
         if (fecha && !isValidDate(fecha)) {
-            return res.status(400).json({ message: "'fecha' inválida (YYYY-MM-DD)" });
+            return next(new AppError("'fecha' inválida (YYYY-MM-DD)", 400));
         }
         if (hora && !isValidTime(hora)) {
-            return res.status(400).json({ message: "'hora' inválida (HH:mm o HH:mm:ss)" });
+            return next(new AppError("'hora' inválida (HH:mm o HH:mm:ss)", 400));
         }
         if (estado && !isValidEstado(estado)) {
-            return res.status(400).json({ message: "'estado' inválido" });
+            return next(new AppError("'estado' inválido", 400));
         }
 
         if (pacienteId) {
             const paciente = await Pacientes.findByPk(pacienteId);
             if (!paciente) {
-                return res.status(404).json({ message: "Paciente no encontrado" });
+                return next(new AppError("Paciente no encontrado", 404));
             }
         }
         if (especialistaId) {
             const especialista = await Especialistas.findByPk(especialistaId);
             if (!especialista) {
-                return res.status(404).json({ message: "Especialista no encontrado" });
+                return next(new AppError("Especialista no encontrado", 404));
             }
         }
 
         // Si se actualiza fecha/hora/especialista, verificar conflicto
         const citaActual = await citasController.getCitaById(req.params.id);
         if (!citaActual) {
-            return res.status(404).json({ message: "Cita no encontrada" });
+            return next(new AppError("Cita no encontrada", 404));
         }
         const nuevaFecha = fecha ?? citaActual.fecha;
         const nuevaHora = hora ?? citaActual.hora;
         const nuevoEspecialistaId = especialistaId ?? citaActual.especialistaId;
         const conflicto = await Citas.findOne({ where: { fecha: nuevaFecha, hora: nuevaHora, especialistaId: nuevoEspecialistaId } });
         if (conflicto && conflicto.id !== citaActual.id) {
-            return res.status(409).json({ message: "Conflicto de agenda: el especialista ya tiene una cita en ese horario" });
+            return next(new AppError("Conflicto de agenda: el especialista ya tiene una cita en ese horario", 409));
         }
 
         const cita = await citasController.updateCita(req.params.id, { fecha, hora, estado, pacienteId, especialistaId });
+        
+        // Log de éxito
+        logger.info(`Cita actualizada - ID: ${req.params.id} - IP: ${req.ip}`);
+        
         res.json(cita);
     } catch (error) {
-        res.status(500).json({ message: "Error actualizando la cita", error: error.message });
+        next(new AppError("Error actualizando la cita: " + error.message, 500));
     }
 });
 
@@ -220,23 +274,39 @@ router.put("/:id", async (req, res) => {
  *         schema:
  *           type: string
  *           format: uuid
+ *         description: ID único de la cita
  *     responses:
  *       200:
  *         description: Cita eliminada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Cita eliminada correctamente"
  *       404:
  *         description: Cita no encontrada
+ *       500:
+ *         description: Error interno del servidor
  */
 // Eliminar cita
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", async (req, res, next) => {
     try {
         const eliminado = await citasController.deleteCita(req.params.id);
+        
         if (!eliminado) {
-            return res.status(404).json({ message: "Cita no encontrada" });
+            return next(new AppError("Cita no encontrada", 404));
         }
+        
+        // Log de éxito
+        logger.info(`Cita eliminada - ID: ${req.params.id} - IP: ${req.ip}`);
+        
         res.json({ message: "Cita eliminada correctamente" });
     } catch (error) {
-        res.status(500).json({ message: "Error eliminando la cita", error: error.message });
+        next(new AppError("Error eliminando la cita: " + error.message, 500));
     }
 });
 
-module.exports = router; 
+module.exports = router;
