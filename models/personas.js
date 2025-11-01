@@ -24,6 +24,9 @@
  *         correo:
  *           type: string
  *           format: email
+ *         imagen:
+ *           type: string
+ *           description: Ruta de la imagen de perfil (opcional)
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -58,6 +61,10 @@ const Personas = sequelize.define("personas",{
 		allowNull: false,
 		unique: true,
 		validate: {isEmail: true},
+	},
+	imagen: {
+		type: DataTypes.STRING,
+		allowNull: true, // Opcional como solicitaste
 	},
 }, {
 	timestamps: true,  

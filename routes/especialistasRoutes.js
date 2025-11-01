@@ -3,6 +3,7 @@ const router = express.Router();
 const especialistasController = require("../controllers/especialistas");
 const AppError = require("../errors/AppError");
 const logger = require("../loggers/loggerWinston");
+const upload = require ("../middlewares/multerConfig");
 
 /**
  * @swagger
@@ -54,7 +55,7 @@ const logger = require("../loggers/loggerWinston");
  *       500:
  *         description: Error interno del servidor
  */
-router.post("/", async (req, res, next) => {
+router.post("/",upload.single('imagen'), async (req, res, next) => {
 	try {
 		const { usuario, contrasena, correo, especialidad } = req.body;
 		
@@ -62,7 +63,8 @@ router.post("/", async (req, res, next) => {
 			return next(new AppError("Campos requeridos faltantes", 400));
 		}
 		
-		const especialista = await especialistasController.createEspecialista({ usuario, contrasena, correo, especialidad });
+		const imagen = req.file ? `public/images/profile/${req.file.filename}` : null;
+		const especialista = await especialistasController.createEspecialista({ usuario, contrasena, correo, especialidad, imagen });
 		
 		// Log de éxito
 		logger.info(`Especialista creado - ID: ${especialista.id} - Usuario: ${usuario} - IP: ${req.ip}`);
@@ -189,9 +191,14 @@ router.get("/:id", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/:id", async (req, res, next) => {
+router.put("/:id",upload.single('imagen'), async (req, res, next) => {
 	try {
-		const actualizado = await especialistasController.updateEspecialista(req.params.id, req.body);
+
+		
+		// Obtener la ruta de la imagen si se subió
+		const imagen = req.file ? `public/images/profile/${req.file.filename}` : undefined;
+
+		const actualizado = await especialistasController.updateEspecialista(req.params.id, req.body, imagen);
 		
 		if (!actualizado) {
 			return next(new AppError("Especialista no encontrado", 404));

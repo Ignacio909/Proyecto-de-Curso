@@ -3,7 +3,7 @@ const router = express.Router();
 const pacientesController = require ("../controllers/pacientes");
 const AppError = require ("../errors/AppError");
 const logger = require("../loggers/loggerWinston");
-
+const upload = require ("../middlewares/multerConfig");
 /**
  * @swagger
  * tags:
@@ -64,16 +64,16 @@ const logger = require("../loggers/loggerWinston");
  *       500:
  *         description: Error interno del servidor
  */
-router.post("/", async (req, res, next) => {
+router.post("/",upload.single('imagen'), async (req, res, next) => {
 	try {
-		const { usuario, contrasena, correo, nombre, apellidos, telefono, carnetIdentidad } = req.body;
+		const { usuario, contrasena, correo, imagen, telefono } = req.body;
 		
 		// Validación de campos requeridos
-		if (!usuario || !contrasena || !correo || !telefono || !carnetIdentidad) {
+		if (!usuario || !contrasena || !correo || !telefono ) {
 			return next(new AppError("Campos requeridos faltantes", 400));
 		}
 		
-		const paciente = await pacientesController.createPaciente({ usuario, contrasena, correo, nombre, apellidos, telefono, carnetIdentidad });
+		const paciente = await pacientesController.createPaciente({ usuario, contrasena, correo, imagen, telefono });
 		
 		// Log de éxito
 		logger.info(`Paciente creado exitosamente - ID: ${paciente.id} - Usuario: ${usuario} - IP: ${req.ip}`);
@@ -206,9 +206,12 @@ router.get("/:id", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/:id", async (req, res, next) => {
+router.put("/:id",upload.single('imagen'), async (req, res, next) => {
 	try {
-		const actualizado = await pacientesController.updatePaciente(req.params.id, req.body);
+
+		const imagen = req.file ? `/images/perfiles/${req.file.filename}` : undefined;
+		
+		const actualizado = await pacientesController.updatePaciente(req.params.id, req.body, imagen);
 		
 		if (!actualizado) {
 			return next(new AppError("Paciente no encontrado", 404));

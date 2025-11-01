@@ -9,24 +9,18 @@ const createPaciente = async (data) => {
 		contrasena,
 		correo,
 		// rol se fuerza a "paciente"
-		nombre,
-		apellidos,
 		telefono,
-		carnetIdentidad,
 	} = data;
 
 	return await sequelize.transaction(async (t) => {
 		const persona = await Personas.create(
-			{ usuario, contrasena, correo, rol: "paciente" },
+			{ usuario, contrasena, correo, rol: "paciente", imagen },
 			{ transaction: t }
 		);
 
 		const paciente = await Pacientes.create(
 			{
-				nombre,
-				apellidos,
 				telefono,
-				carnetIdentidad,
 				personaId: persona.id,
 			},
 			{ transaction: t }
@@ -51,13 +45,13 @@ const updatePaciente = async (id, data) => {
 	const paciente = await Pacientes.findByPk(id, { include: [{ model: Personas, as: "persona" }] });
 	if (!paciente) return null;
 
-	const { nombre, apellidos, telefono, carnetIdentidad, usuario, contrasena, correo } = data;
+	const { telefono, usuario, contrasena, correo, imagen } = data;
 
 	return await sequelize.transaction(async (t) => {
-		await paciente.update({ nombre, apellidos, telefono, carnetIdentidad }, { transaction: t });
-		if (usuario || contrasena || correo) {
+		await paciente.update({telefono}, { transaction: t });
+		if (usuario || contrasena || correo || imagen) {
 			await paciente.persona.update(
-				{ usuario, contrasena, correo },
+				{ usuario, contrasena, correo, imagen },
 				{ transaction: t }
 			);
 		}

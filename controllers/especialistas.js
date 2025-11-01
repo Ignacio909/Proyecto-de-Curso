@@ -4,11 +4,11 @@ const Personas = require("../models/personas");
 
 // Crear especialista (crea persona + especialista en una transacción)
 const createEspecialista = async (data) => {
-	const { usuario, contrasena, correo, especialidad } = data;
+	const { usuario, contrasena, correo, especialidad, imagen } = data;
 
 	return await sequelize.transaction(async (t) => {
 		const persona = await Personas.create(
-			{ usuario, contrasena, correo, rol: "especialista" },
+			{ usuario, contrasena, correo, rol: "especialista", imagen },
 			{ transaction: t }
 		);
 
@@ -36,13 +36,14 @@ const updateEspecialista = async (id, data) => {
 	const especialista = await Especialistas.findByPk(id, { include: [{ model: Personas, as: "persona" }] });
 	if (!especialista) return null;
 
-	const { especialidad, usuario, contrasena, correo } = data;
+	const { especialidad, usuario, contrasena, correo, imagen } = data;
 
 	return await sequelize.transaction(async (t) => {
 		await especialista.update({ especialidad }, { transaction: t });
-		if (usuario || contrasena || correo) {
-			await especialista.persona.update({ usuario, contrasena, correo }, { transaction: t });
+		if (usuario || contrasena || correo || imagen) {
+			await especialista.persona.update({ usuario, contrasena, correo, imagen }, { transaction: t });
 		}
+		await especialista.reload({ include: [{ model: Personas, as: "persona" }] });
 		return especialista;
 	});
 };
