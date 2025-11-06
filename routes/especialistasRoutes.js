@@ -63,7 +63,7 @@ router.post("/",upload.single('imagen'), async (req, res, next) => {
 			return next(new AppError("Campos requeridos faltantes", 400));
 		}
 		
-		const imagen = req.file ? `public/images/profile/${req.file.filename}` : null;
+		const imagen = req.file ? `/images/profile/${req.file.filename}` : null;
 		const especialista = await especialistasController.createEspecialista({ usuario, contrasena, correo, especialidad, imagen });
 		
 		// Log de éxito

@@ -7,7 +7,8 @@ const citasRoutes = require("./routes/citasRoutes");
 const pacientesRoutes = require("./routes/pacientesRoutes.js");
 const especialistasRoutes = require("./routes/especialistasRoutes.js");
 const { swaggerDocs } = require('./swagger.js');
-const allowOrigin = ['http://localhost:3000'];
+const allowOrigin = ['http://localhost:3000', 'http://localhost:3001'];
+const PORT = process.env.PORT || 3001;
 require ("dotenv").config();
 
 const corsOptions = {
@@ -63,8 +64,8 @@ app.get('/',(req, res)=> {
     res.send('Hola, Mundo')
 })
 
-app.listen(3000,()=>{
-    console.log('Servidor http://localhost:3000')
+app.listen(PORT,()=>{
+    console.log(`Servidor http://localhost:${PORT}`)
 })
 
 module.exports = app;

@@ -28,7 +28,6 @@ const upload = require ("../middlewares/multerConfig");
  *               - contrasena
  *               - correo
  *               - telefono
- *               - carnetIdentidad
  *             properties:
  *               usuario:
  *                 type: string
@@ -40,18 +39,9 @@ const upload = require ("../middlewares/multerConfig");
  *                 type: string
  *                 format: email
  *                 description: Correo electrónico
- *               nombre:
- *                 type: string
- *                 description: Nombre del paciente
- *               apellidos:
- *                 type: string
- *                 description: Apellidos del paciente
  *               telefono:
  *                 type: string
  *                 description: Número de teléfono
- *               carnetIdentidad:
- *                 type: string
- *                 description: Carnet de identidad
  *     responses:
  *       201:
  *         description: Paciente creado exitosamente
@@ -66,14 +56,14 @@ const upload = require ("../middlewares/multerConfig");
  */
 router.post("/",upload.single('imagen'), async (req, res, next) => {
 	try {
-		const { usuario, contrasena, correo, imagen, telefono } = req.body;
-		
+		const { usuario, contrasena, correo, telefono, carnetIdentidad } = req.body;
+		const imagen = req.file ? `/images/profile/${req.file.filename}` : undefined;
 		// Validación de campos requeridos
-		if (!usuario || !contrasena || !correo || !telefono ) {
+		if (!usuario || !contrasena || !correo || !telefono || !carnetIdentidad ) {
 			return next(new AppError("Campos requeridos faltantes", 400));
 		}
 		
-		const paciente = await pacientesController.createPaciente({ usuario, contrasena, correo, imagen, telefono });
+		const paciente = await pacientesController.createPaciente({ usuario, contrasena, correo, imagen, telefono, carnetIdentidad });
 		
 		// Log de éxito
 		logger.info(`Paciente creado exitosamente - ID: ${paciente.id} - Usuario: ${usuario} - IP: ${req.ip}`);

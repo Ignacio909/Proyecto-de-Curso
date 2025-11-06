@@ -4,25 +4,28 @@ const Personas = require("../models/personas");
 
 // Crear paciente (crea persona + paciente en una transacción)
 const createPaciente = async (data) => {
-	const {
-		usuario,
-		contrasena,
-		correo,
-		// rol se fuerza a "paciente"
-		telefono,
-	} = data;
+    const {
+        usuario,
+        contrasena,
+        correo,
+        // rol se fuerza a "paciente"
+        telefono,
+        carnetIdentidad,
+        imagen,
+    } = data;
 
 	return await sequelize.transaction(async (t) => {
-		const persona = await Personas.create(
-			{ usuario, contrasena, correo, rol: "paciente", imagen },
-			{ transaction: t }
-		);
+        const persona = await Personas.create(
+            { usuario, contrasena, correo, rol: "paciente", imagen },
+            { transaction: t }
+        );
 
 		const paciente = await Pacientes.create(
-			{
-				telefono,
-				personaId: persona.id,
-			},
+            {
+                telefono,
+                carnetIdentidad,
+                personaId: persona.id,
+            },
 			{ transaction: t }
 		);
 
