@@ -4,6 +4,7 @@ const especialistasController = require("../controllers/especialistas");
 const AppError = require("../errors/AppError");
 const logger = require("../loggers/loggerWinston");
 const upload = require ("../middlewares/multerConfig");
+const authenticate = require ("../middlewares/auntenticationJwt");
 
 /**
  * @swagger
@@ -55,7 +56,7 @@ const upload = require ("../middlewares/multerConfig");
  *       500:
  *         description: Error interno del servidor
  */
-router.post("/",upload.single('imagen'), async (req, res, next) => {
+router.post("/",authenticate (["admin"]) ,upload.single('imagen'), async (req, res, next) => {
 	try {
 		const { usuario, contrasena, correo, especialidad } = req.body;
 		
@@ -93,7 +94,7 @@ router.post("/",upload.single('imagen'), async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/", async (req, res, next) => {
+router.get("/",authenticate(["admin"]), async (req, res, next) => {
 	try {
 		const especialistas = await especialistasController.getEspecialistas();
 		
@@ -132,7 +133,7 @@ router.get("/", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/:id", async (req, res, next) => {
+router.get("/:id",authenticate(["admin", "especialista"]), async (req, res, next) => {
 	try {
 		const especialista = await especialistasController.getEspecialistaById(req.params.id);
 		
@@ -191,7 +192,7 @@ router.get("/:id", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/:id",upload.single('imagen'), async (req, res, next) => {
+router.put("/:id",authenticate(["admin","especialista"]),upload.single('imagen'), async (req, res, next) => {
 	try {
 
 		
@@ -243,7 +244,7 @@ router.put("/:id",upload.single('imagen'), async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id",authenticate(["admin"]), async (req, res, next) => {
 	try {
 		const eliminado = await especialistasController.deleteEspecialista(req.params.id);
 		

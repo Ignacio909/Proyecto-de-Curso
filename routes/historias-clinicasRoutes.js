@@ -3,6 +3,7 @@ const router = express.Router();
 const historiaClinicaControllers = require("../controllers/historias-clinicas");
 const AppError = require("../errors/AppError");
 const logger = require("../loggers/loggerWinston");
+const authenticate = require("../middlewares/auntenticationJwt");
 
 /**
  * @swagger
@@ -36,7 +37,7 @@ const logger = require("../loggers/loggerWinston");
  *         description: Error interno del servidor
  */
 // CRUD de Historias Clínicas
-router.post("/", async (req, res, next) => {
+router.post("/",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const historia = await historiaClinicaControllers.createHistoriaClinica(req.body);
         
@@ -59,7 +60,7 @@ router.post("/", async (req, res, next) => {
  *       200:
  *         description: OK
  */
-router.get("/", async (req, res, next) => {
+router.get("/",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const historias = await historiaClinicaControllers.getHistoriasClinicas();
         
@@ -98,7 +99,7 @@ router.get("/", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/:id",async (req, res, next) => {
+router.get("/:id",authenticate(["especialista"]),async (req, res, next) => {
     try {
         const historia = await historiaClinicaControllers.getHistoriaClinicaById(req.params.id);
         
@@ -147,7 +148,7 @@ router.get("/:id",async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/:id", async (req, res, next) => {
+router.put("/:id",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const historia = await historiaClinicaControllers.updateHistoriaClinica(req.params.id, req.body);
         
@@ -194,7 +195,7 @@ router.put("/:id", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const eliminando = await historiaClinicaControllers.deleteHistoriaClinica(req.params.id);
         
@@ -238,7 +239,7 @@ router.delete("/:id", async (req, res, next) => {
  *         description: Error interno del servidor
  */
 // Buscar historia clínica por pacienteId
-router.get("/paciente/:pacienteId", async (req, res, next) => {
+router.get("/paciente/:pacienteId",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const historia = await historiaClinicaControllers.findHistoriaClinicaByPacienteId(req.params.pacienteId);
         

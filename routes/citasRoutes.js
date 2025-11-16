@@ -6,6 +6,7 @@ const Pacientes = require("../models/pacientes");
 const Especialistas = require("../models/especialistas");
 const AppError = require("../errors/AppError");
 const logger = require("../loggers/loggerWinston");
+const authenticate =require ("../middlewares/auntenticationJwt");
 
 // Validadores simples
 const isValidDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
@@ -42,7 +43,7 @@ const isValidEstado = (value) => ["pendiente", "completada", "cancelada"].includ
  *         description: Conflicto de agenda
  */
 // Crear cita
-router.post("/", async (req, res, next) => {
+router.post("/",authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const { fecha, hora, estado = "pendiente", pacienteId, especialistaId } = req.body;
 
@@ -99,7 +100,7 @@ router.post("/", async (req, res, next) => {
  *         description: Lista de citas
  */
 // Listar citas
-router.get("/", async (req, res, next) => {
+router.get("/",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const citas = await citasController.getCitas();
         
@@ -139,7 +140,7 @@ router.get("/", async (req, res, next) => {
  *         description: Error interno del servidor
  */
 // Obtener cita por ID
-router.get("/:id", async (req, res, next) => {
+router.get("/:id",authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const cita = await citasController.getCitaById(req.params.id);
         
@@ -210,7 +211,7 @@ router.get("/:id", async (req, res, next) => {
  *         description: Error interno del servidor
  */
 // Actualizar cita
-router.put("/:id", async (req, res, next) => {
+router.put("/:id",authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const { fecha, hora, estado, pacienteId, especialistaId } = req.body;
 
@@ -292,7 +293,7 @@ router.put("/:id", async (req, res, next) => {
  *         description: Error interno del servidor
  */
 // Eliminar cita
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id",authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const eliminado = await citasController.deleteCita(req.params.id);
         

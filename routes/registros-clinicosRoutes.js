@@ -3,6 +3,7 @@ const router = express.Router();
 const registroClinicosController = require("../controllers/registros-clinicos");
 const AppError = require("../errors/AppError");
 const logger = require("../loggers/loggerWinston");
+const authenticate = require ("../middlewares/auntenticationJwt");
 
 /**
  * @swagger
@@ -34,7 +35,7 @@ const logger = require("../loggers/loggerWinston");
  *         description: Error interno del servidor
  */
 // CRUD de Registros Clínicos
-router.post("/", async (req, res, next) => {
+router.post("/",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const registro = await registroClinicosController.createRegistroClinico(req.body);
         
@@ -65,7 +66,7 @@ router.post("/", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/", async (req, res, next) => {
+router.get("/",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const registros = await registroClinicosController.getRegistrosClinicos();
         
@@ -104,7 +105,7 @@ router.get("/", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/:id", async (req, res, next) => {
+router.get("/:id",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const registro = await registroClinicosController.getRegistroClinicoById(req.params.id);
         
@@ -153,7 +154,7 @@ router.get("/:id", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/:id", async (req, res, next) => {
+router.put("/:id",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const actualizado = await registroClinicosController.updateRegistroClinico(req.params.id, req.body);
         
@@ -200,7 +201,7 @@ router.put("/:id", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id",authenticate(["especialista"]), async (req, res, next) => {
     try {
         const eliminado = await registroClinicosController.deleteRegistroClinico(req.params.id);
         

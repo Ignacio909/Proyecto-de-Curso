@@ -4,6 +4,8 @@ const pacientesController = require ("../controllers/pacientes");
 const AppError = require ("../errors/AppError");
 const logger = require("../loggers/loggerWinston");
 const upload = require ("../middlewares/multerConfig");
+const authenticate = require ("../middlewares/auntenticationJwt");
+
 /**
  * @swagger
  * tags:
@@ -92,7 +94,7 @@ router.post("/",upload.single('imagen'), async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/", async (req, res, next) => {
+router.get("/",authenticate(["admin","especialista"]), async (req, res, next) => {
 	try {
 		const pacientes = await pacientesController.getPacientes();
 		
@@ -131,7 +133,7 @@ router.get("/", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/:id", async (req, res, next) => {
+router.get("/:id",authenticate(["admin","especialista","paciente"]), async (req, res, next) => {
 	try {
 		const paciente = await pacientesController.getPacienteById(req.params.id);
 		
@@ -196,7 +198,7 @@ router.get("/:id", async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/:id",upload.single('imagen'), async (req, res, next) => {
+router.put("/:id",authenticate(["paciente"]),upload.single('imagen'), async (req, res, next) => {
 	try {
 
 		const imagen = req.file ? `/images/perfiles/${req.file.filename}` : undefined;
@@ -246,7 +248,7 @@ router.put("/:id",upload.single('imagen'), async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id",authenticate(["admin"]), async (req, res, next) => {
 	try {
 		const eliminado = await pacientesController.deletePaciente(req.params.id);
 		
