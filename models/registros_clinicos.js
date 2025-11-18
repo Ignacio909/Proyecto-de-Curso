@@ -2,6 +2,7 @@ const { DataTypes, ENUM } = require ("sequelize");
 const sequelize = require("../helpers/database");
 const HistoriaClinica = require ("./historias_clinicas");
 const Especialistas = require("./especialistas");
+const bcrypt = require('bcrypt');
 
 /**
  * @swagger
@@ -86,7 +87,8 @@ const RegistroClinico = sequelize.define("registros_clinicos", {
 		onDelete: "CASCADE",
 		onUpdate: "CASCADE",
 	},
-}, {    timestamps: true,
+}, {  timestamps: true,
+      paranoid:true,
 });
 
 RegistroClinico.belongsTo(HistoriaClinica, {

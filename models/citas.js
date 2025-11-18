@@ -39,6 +39,7 @@ const { DataTypes } = require ("sequelize");
 const sequelize = require("../helpers/database");
 const Pacientes = require("./pacientes");
 const Especialistas = require ("./especialistas");
+const bcrypt = require('bcrypt');
 
 const Citas = sequelize.define("citas", {
 	id: {
@@ -73,6 +74,7 @@ const Citas = sequelize.define("citas", {
 		onUpdate: "CASCADE",
 	},
 }, {timestamps: true,
+	paranoid:true,
 });
 
 Citas.belongsTo(Pacientes, {

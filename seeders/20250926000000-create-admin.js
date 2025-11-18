@@ -1,16 +1,20 @@
 "use strict";
 
 const {v4: uuidv4} =require('uuid');
+const bcrypt = require('bcrypt');
+
 module.exports = {
 	up: async(queryInterface, Sequelize)=> {
+		const hashedPassword = await bcrypt.hash('admin123', 12);
 		return queryInterface.bulkInsert("personas", [{
 			id: uuidv4(),
 			usuario: "admin",
-			contrasena: "admin123",
+			contrasena: hashedPassword,
 			rol: "admin",
 			correo: "admin@correo.com",
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
+			deletedAt: null
 		}],{});
 	},
 

@@ -29,6 +29,7 @@
 const { DataTypes } = require ("sequelize");
 const sequelize = require("../helpers/database");
 const Personas = require("./personas");
+const bcrypt = require('bcrypt');
 
 const Pacientes = sequelize.define("pacientes", {
 	id: {
@@ -58,6 +59,21 @@ const Pacientes = sequelize.define("pacientes", {
 		onUpdate: "CASCADE",
 	},
 }, { timestamps: true,
+	paranoid:true,
+	  hooks: {
+    beforeCreate: async (persona) => {
+      if (persona.contrasena) {
+        const saltRounds = 12;
+        persona.contrasena = await bcrypt.hash(persona.contrasena, saltRounds);
+      }
+    },
+    beforeUpdate: async (persona) => {
+      if (persona.changed('contrasena') && persona.contrasena) {
+        const saltRounds = 12;
+        persona.contrasena = await bcrypt.hash(persona.contrasena, saltRounds);
+      }
+    }
+  }
 });
 
 Pacientes.belongsTo(Personas, {

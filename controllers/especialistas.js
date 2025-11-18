@@ -64,10 +64,19 @@ const deleteEspecialista = async (id) => {
 	});
 };
 
+// 🔍 Buscar especialistas incluyendo los eliminados
+const getEspecialistasWithDeleted = async () => {
+  return await Especialistas.findAll({ 
+    paranoid: false, // ✅ Incluye registros eliminados
+    include: [{ model: Personas, as: "persona", paranoid: false }] 
+  });
+};
+
 module.exports = {
 	createEspecialista,
 	getEspecialistas,
 	getEspecialistaById,
 	updateEspecialista,
 	deleteEspecialista,
+	getEspecialistasWithDeleted,
 }; 
