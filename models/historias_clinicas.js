@@ -42,7 +42,7 @@
 const { DataTypes } = require ("sequelize");
 const sequelize = require("../helpers/database");
 const Pacientes = require("./pacientes");
-const bcrypt = require('bcrypt');
+
 
 const HistoriaClinica = sequelize.define("historias_clinicas", {
 	id: {

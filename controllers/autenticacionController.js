@@ -1,9 +1,9 @@
 const { Op } = require("sequelize");
 const Personas = require("../models/personas");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const AppError = require("../errors/AppError");
-const logger = require("../logger/logger");
+const logger = require("../loggers/loggerWinston");
 
 //Loguearse
 exports.login = async (correo, contrasena) => {

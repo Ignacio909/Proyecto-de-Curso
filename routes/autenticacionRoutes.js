@@ -1,6 +1,6 @@
 const express = require("express");
 const AppError = require("../errors/AppError");
-const authenticate = require("../middlewares/authenticate");
+const authenticate = require("../middlewares/auntenticationJwt");
 const router = express.Router();
 const persona = require ("../controllers/autenticacionController");
 

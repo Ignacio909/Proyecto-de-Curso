@@ -36,7 +36,7 @@
  */
 const { DataTypes } = require ("sequelize");
 const sequelize = require("../helpers/database");
-const bcrypt = require('bcrypt');
+
 
 const Personas = sequelize.define("personas",{
 	id: {

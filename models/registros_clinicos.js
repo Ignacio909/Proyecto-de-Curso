@@ -2,7 +2,6 @@ const { DataTypes, ENUM } = require ("sequelize");
 const sequelize = require("../helpers/database");
 const HistoriaClinica = require ("./historias_clinicas");
 const Especialistas = require("./especialistas");
-const bcrypt = require('bcrypt');
 
 /**
  * @swagger
