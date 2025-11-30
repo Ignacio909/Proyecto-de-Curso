@@ -35,6 +35,7 @@
  *           format: date-time
  */
 const { DataTypes } = require ("sequelize");
+const bcrypt = require("bcryptjs");
 const sequelize = require("../helpers/database");
 
 
@@ -69,6 +70,20 @@ const Personas = sequelize.define("personas",{
 	},
 }, {
 	timestamps: true,
-	paranoid: true,  
+	paranoid: true,
+	hooks: {
+		beforeCreate: async (persona) => {
+			if (persona.contrasena) {
+				const saltRounds = 12;
+				persona.contrasena = await bcrypt.hash(persona.contrasena, saltRounds);
+			}
+		},
+		beforeUpdate: async (persona) => {
+			if (persona.changed("contrasena") && persona.contrasena) {
+				const saltRounds = 12;
+				persona.contrasena = await bcrypt.hash(persona.contrasena, saltRounds);
+			}
+		}
+	}
 });
 module.exports = Personas;

@@ -96,10 +96,51 @@ router.post("/logout", async (req, res, next) => {
   const { token } = req.body;
   try {
     res.status(200).send("Usted a cerrado sesión");
+  } catch (error) {
     next(error);
-  } catch (error) {}
+  }
 });
 
+/**
+ * @swagger
+ * /user/profile:
+ *   get:
+ *     tags:
+ *       - Usuario
+ *     summary: Obtiene la información del usuario autenticado
+ *     description: Esta ruta obtiene la información del usuario autenticado. Requiere roles de 'admin', 'investigador' o 'superadmin'.
+ *     operationId: obtenerPerfilUsuario
+ *     security:
+ *       - bearerAuth: ["admin", "investigador", "superadmin"]
+ *     responses:
+ *       '200':
+ *         description: Operación exitosa. Retorna la información del usuario.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Usuario'
+ *       '400':
+ *         description: Error en la solicitud. El cliente ha emitido una solicitud incorrecta.
+ *       '401':
+ *         description: No autorizado. El usuario no tiene los permisos necesarios.
+ *       '500':
+ *         description: Error interno del servidor. Un error ha ocurrido en el servidor mientras procesaba la solicitud.
+ */
+
+//Obtener informacion del usuario
+router.get(
+  "/user/profile",
+  authenticate(["admin", "especialista", "paciente"]),
+  async (req, res, next) => {
+    const { userId } = req.userData;
+    try {
+      const user = await persona.getUserById(userId);
+      res.status(200).json(user);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 /**
  * @swagger
