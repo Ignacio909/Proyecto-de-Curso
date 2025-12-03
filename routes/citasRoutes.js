@@ -6,7 +6,7 @@ const Pacientes = require("../models/pacientes");
 const Especialistas = require("../models/especialistas");
 const AppError = require("../errors/AppError");
 const logger = require("../loggers/loggerWinston");
-const authenticate =require ("../middlewares/auntenticationJwt");
+const authenticate = require("../middlewares/auntenticationJwt");
 
 // Validadores simples
 const isValidDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
@@ -43,7 +43,7 @@ const isValidEstado = (value) => ["pendiente", "completada", "cancelada"].includ
  *         description: Conflicto de agenda
  */
 // Crear cita
-router.post("/",authenticate(["especialista", "paciente"]), async (req, res, next) => {
+router.post("/", authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const { fecha, hora, estado = "pendiente", pacienteId, especialistaId } = req.body;
 
@@ -79,10 +79,10 @@ router.post("/",authenticate(["especialista", "paciente"]), async (req, res, nex
         }
 
         const cita = await citasController.createCita({ fecha, hora, estado, pacienteId, especialistaId });
-        
+
         // Log de éxito
         logger.info(`Cita creada - ID: ${cita.id} - Fecha: ${fecha} - Hora: ${hora} - IP: ${req.ip}`);
-        
+
         res.status(201).json(cita);
     } catch (error) {
         next(new AppError("Error creando la cita: " + error.message, 500));
@@ -100,13 +100,13 @@ router.post("/",authenticate(["especialista", "paciente"]), async (req, res, nex
  *         description: Lista de citas
  */
 // Listar citas
-router.get("/",authenticate(["especialista"]), async (req, res, next) => {
+router.get("/", authenticate(["especialista"]), async (req, res, next) => {
     try {
         const citas = await citasController.getCitas();
-        
+
         // Log de éxito
         logger.info(`Lista de citas obtenida - Total: ${citas.length} - IP: ${req.ip}`);
-        
+
         res.json(citas);
     } catch (error) {
         next(new AppError("Error obteniendo citas: " + error.message, 500));
@@ -140,17 +140,17 @@ router.get("/",authenticate(["especialista"]), async (req, res, next) => {
  *         description: Error interno del servidor
  */
 // Obtener cita por ID
-router.get("/:id",authenticate(["especialista", "paciente"]), async (req, res, next) => {
+router.get("/:id", authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const cita = await citasController.getCitaById(req.params.id);
-        
+
         if (!cita) {
             return next(new AppError("Cita no encontrada", 404));
         }
-        
+
         // Log de éxito
         logger.info(`Cita obtenida - ID: ${req.params.id} - IP: ${req.ip}`);
-        
+
         res.json(cita);
     } catch (error) {
         next(new AppError("Error obteniendo la cita: " + error.message, 500));
@@ -211,7 +211,7 @@ router.get("/:id",authenticate(["especialista", "paciente"]), async (req, res, n
  *         description: Error interno del servidor
  */
 // Actualizar cita
-router.put("/:id",authenticate(["especialista", "paciente"]), async (req, res, next) => {
+router.put("/:id", authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const { fecha, hora, estado, pacienteId, especialistaId } = req.body;
 
@@ -252,10 +252,10 @@ router.put("/:id",authenticate(["especialista", "paciente"]), async (req, res, n
         }
 
         const cita = await citasController.updateCita(req.params.id, { fecha, hora, estado, pacienteId, especialistaId });
-        
+
         // Log de éxito
         logger.info(`Cita actualizada - ID: ${req.params.id} - IP: ${req.ip}`);
-        
+
         res.json(cita);
     } catch (error) {
         next(new AppError("Error actualizando la cita: " + error.message, 500));
@@ -293,20 +293,94 @@ router.put("/:id",authenticate(["especialista", "paciente"]), async (req, res, n
  *         description: Error interno del servidor
  */
 // Eliminar cita
-router.delete("/:id",authenticate(["especialista", "paciente"]), async (req, res, next) => {
+router.delete("/:id", authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const eliminado = await citasController.deleteCita(req.params.id);
-        
+
         if (!eliminado) {
             return next(new AppError("Cita no encontrada", 404));
         }
-        
+
         // Log de éxito
         logger.info(`Cita eliminada - ID: ${req.params.id} - IP: ${req.ip}`);
-        
+
         res.json({ message: "Cita eliminada correctamente" });
     } catch (error) {
         next(new AppError("Error eliminando la cita: " + error.message, 500));
+    }
+});
+
+/**
+ * @swagger
+ * /citas/paciente/{id}:
+ *   get:
+ *     summary: Obtener citas por ID de paciente
+ *     tags: [Citas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID del paciente
+ *     responses:
+ *       200:
+ *         description: Lista de citas del paciente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Cita'
+ *       500:
+ *         description: Error interno del servidor
+ */
+// Obtener citas por paciente
+router.get("/paciente/:id", authenticate(["especialista", "paciente"]), async (req, res, next) => {
+    try {
+        const citas = await citasController.getCitasByPaciente(req.params.id);
+        logger.info(`Citas obtenidas para paciente - ID: ${req.params.id} - Total: ${citas.length} - IP: ${req.ip}`);
+        res.json(citas);
+    } catch (error) {
+        next(new AppError("Error obteniendo citas del paciente: " + error.message, 500));
+    }
+});
+
+/**
+ * @swagger
+ * /citas/especialista/{id}:
+ *   get:
+ *     summary: Obtener citas por ID de especialista
+ *     tags: [Citas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID del especialista
+ *     responses:
+ *       200:
+ *         description: Lista de citas del especialista
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Cita'
+ *       500:
+ *         description: Error interno del servidor
+ */
+// Obtener citas por especialista
+router.get("/especialista/:id", authenticate(["especialista"]), async (req, res, next) => {
+    try {
+        const citas = await citasController.getCitasByEspecialista(req.params.id);
+        logger.info(`Citas obtenidas para especialista - ID: ${req.params.id} - Total: ${citas.length} - IP: ${req.ip}`);
+        res.json(citas);
+    } catch (error) {
+        next(new AppError("Error obteniendo citas del especialista: " + error.message, 500));
     }
 });
 

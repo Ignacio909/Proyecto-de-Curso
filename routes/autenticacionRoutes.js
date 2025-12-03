@@ -2,7 +2,8 @@ const express = require("express");
 const AppError = require("../errors/AppError");
 const authenticate = require("../middlewares/auntenticationJwt");
 const router = express.Router();
-const persona = require ("../controllers/autenticacionController");
+const persona = require("../controllers/autenticacionController");
+const logger = require("../loggers/loggerWinston");
 
 /**
  * @swagger
@@ -45,15 +46,19 @@ const persona = require ("../controllers/autenticacionController");
  */
 
 //Loguearse
+//Loguearse
 router.post("/login", async (req, res, next) => {
   const { correo, contrasena } = req.body;
   if (!correo || !contrasena) {
-    throw new AppError("El correo y la contraseña son obligatorios", 400);
+    return next(new AppError("El correo y la contraseña son obligatorios", 400));
   }
   try {
     const tokens = await persona.login(correo, contrasena);
+
+    logger.info(`Login exitoso - Usuario: ${correo} - IP: ${req.ip}`);
     res.status(200).json(tokens);
   } catch (error) {
+    logger.error(`Error en login - Usuario: ${correo} - Error: ${error.message} - IP: ${req.ip}`);
     next(error);
   }
 });

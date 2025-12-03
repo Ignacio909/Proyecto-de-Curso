@@ -57,10 +57,34 @@ const deleteCita = async (id) => {
     return true;
 };
 
+// Obtener citas por ID de paciente
+const getCitasByPaciente = async (pacienteId) => {
+    return await Citas.findAll({
+        where: { pacienteId },
+        include: [
+            { model: Pacientes, as: "paciente" },
+            { model: Especialistas, as: "especialista" },
+        ],
+    });
+};
+
+// Obtener citas por ID de especialista
+const getCitasByEspecialista = async (especialistaId) => {
+    return await Citas.findAll({
+        where: { especialistaId },
+        include: [
+            { model: Pacientes, as: "paciente" },
+            { model: Especialistas, as: "especialista" },
+        ],
+    });
+};
+
 module.exports = {
     createCita,
     getCitas,
     getCitaById,
     updateCita,
     deleteCita,
-}; 
+    getCitasByPaciente,
+    getCitasByEspecialista,
+};
