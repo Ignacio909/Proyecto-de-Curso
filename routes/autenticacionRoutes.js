@@ -100,8 +100,10 @@ router.post("/login", async (req, res, next) => {
 router.post("/logout", async (req, res, next) => {
   const { token } = req.body;
   try {
+    logger.info(`Logout exitoso - IP: ${req.ip}`);
     res.status(200).send("Usted a cerrado sesión");
   } catch (error) {
+    logger.error(`Error en logout - Error: ${error.message} - IP: ${req.ip}`);
     next(error);
   }
 });

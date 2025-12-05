@@ -1,9 +1,10 @@
-const { Op } = require("sequelize");
-const Personas = require("../models/personas");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const AppError = require("../errors/AppError");
 const logger = require("../loggers/loggerWinston");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const Personas = require('../models/personas');
+const Pacientes = require('../models/pacientes');
+const Especialistas = require('../models/especialistas');
+const AppError = require('../errors/AppError');
 
 //Loguearse
 exports.login = async (correo, contrasena) => {
@@ -34,7 +35,13 @@ exports.login = async (correo, contrasena) => {
 
 //Obtener usuario por id
 exports.getUserById = async (id) => {
-  const user = await Personas.findByPk(id, { attributes: { exclude: ['contrasena'] } });
+  const user = await Personas.findByPk(id, {
+    attributes: { exclude: ['contrasena'] },
+    include: [
+      { model: Pacientes, as: 'paciente', required: false },
+      { model: Especialistas, as: 'especialista', required: false }
+    ]
+  });
   if (!user) {
     throw new AppError(`El usuario no existe en la base de datos`, 404);
   }
@@ -44,7 +51,7 @@ exports.getUserById = async (id) => {
 //Refrescar token
 exports.refreshAuthToken = async (refreshToken) => {
   const decodedToken = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-  
+
   const user = await Personas.findByPk(decodedToken.userId);
   if (!user) {
     throw new AppError("Authentication failed", 401);

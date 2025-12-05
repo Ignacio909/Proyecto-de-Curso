@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const pacientesController = require ("../controllers/pacientes");
-const AppError = require ("../errors/AppError");
+const pacientesController = require("../controllers/pacientes");
+const AppError = require("../errors/AppError");
 const logger = require("../loggers/loggerWinston");
-const upload = require ("../middlewares/multerConfig");
-const authenticate = require ("../middlewares/auntenticationJwt");
+const upload = require("../middlewares/multerConfig");
+const authenticate = require("../middlewares/auntenticationJwt");
 
 /**
  * @swagger
@@ -56,20 +56,20 @@ const authenticate = require ("../middlewares/auntenticationJwt");
  *       500:
  *         description: Error interno del servidor
  */
-router.post("/",upload.single('imagen'), async (req, res, next) => {
+router.post("/", upload.single('imagen'), async (req, res, next) => {
 	try {
 		const { usuario, contrasena, correo, telefono, carnetIdentidad } = req.body;
 		const imagen = req.file ? `/images/profile/${req.file.filename}` : undefined;
 		// Validación de campos requeridos
-		if (!usuario || !contrasena || !correo || !telefono || !carnetIdentidad ) {
+		if (!usuario || !contrasena || !correo || !telefono || !carnetIdentidad) {
 			return next(new AppError("Campos requeridos faltantes", 400));
 		}
-		
+
 		const paciente = await pacientesController.createPaciente({ usuario, contrasena, correo, imagen, telefono, carnetIdentidad });
-		
+
 		// Log de éxito
 		logger.info(`Paciente creado exitosamente - ID: ${paciente.id} - Usuario: ${usuario} - IP: ${req.ip}`);
-		
+
 		res.status(201).json(paciente);
 	} catch (error) {
 		next(new AppError("Error creando paciente: " + error.message, 500));
@@ -94,13 +94,13 @@ router.post("/",upload.single('imagen'), async (req, res, next) => {
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/",authenticate(["admin","especialista"]), async (req, res, next) => {
+router.get("/", authenticate(["admin", "especialista"]), async (req, res, next) => {
 	try {
 		const pacientes = await pacientesController.getPacientes();
-		
+
 		// Log de éxito
 		logger.info(`Lista de pacientes obtenida - Total: ${pacientes.length} - IP: ${req.ip}`);
-		
+
 		res.json(pacientes);
 	} catch (error) {
 		next(new AppError("Error obteniendo pacientes: " + error.message, 500));
@@ -133,17 +133,17 @@ router.get("/",authenticate(["admin","especialista"]), async (req, res, next) =>
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/:id",authenticate(["admin","especialista","paciente"]), async (req, res, next) => {
+router.get("/:id", authenticate(["admin", "especialista", "paciente"]), async (req, res, next) => {
 	try {
 		const paciente = await pacientesController.getPacienteById(req.params.id);
-		
+
 		if (!paciente) {
 			return next(new AppError("Paciente no encontrado", 404));
 		}
-		
+
 		// Log de éxito
 		logger.info(`Paciente obtenido - ID: ${req.params.id} - IP: ${req.ip}`);
-		
+
 		res.json(paciente);
 	} catch (error) {
 		next(new AppError("Error obteniendo paciente: " + error.message, 500));
@@ -198,20 +198,20 @@ router.get("/:id",authenticate(["admin","especialista","paciente"]), async (req,
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/:id",authenticate(["paciente"]),upload.single('imagen'), async (req, res, next) => {
+router.put("/:id", authenticate(["paciente"]), upload.single('imagen'), async (req, res, next) => {
 	try {
 
-		const imagen = req.file ? `/images/perfiles/${req.file.filename}` : undefined;
-		
+		const imagen = req.file ? `/images/profile/${req.file.filename}` : undefined;
+
 		const actualizado = await pacientesController.updatePaciente(req.params.id, req.body, imagen);
-		
+
 		if (!actualizado) {
 			return next(new AppError("Paciente no encontrado", 404));
 		}
-		
+
 		// Log de éxito
 		logger.info(`Paciente actualizado - ID: ${req.params.id} - IP: ${req.ip}`);
-		
+
 		res.json(actualizado);
 	} catch (error) {
 		next(new AppError("Error actualizando paciente: " + error.message, 500));
@@ -248,17 +248,17 @@ router.put("/:id",authenticate(["paciente"]),upload.single('imagen'), async (req
  *       500:
  *         description: Error interno del servidor
  */
-router.delete("/:id",authenticate(["admin"]), async (req, res, next) => {
+router.delete("/:id", authenticate(["admin"]), async (req, res, next) => {
 	try {
 		const eliminado = await pacientesController.deletePaciente(req.params.id);
-		
+
 		if (!eliminado) {
 			return next(new AppError("Paciente no encontrado", 404));
 		}
-		
+
 		// Log de éxito
 		logger.info(`Paciente eliminado - ID: ${req.params.id} - IP: ${req.ip}`);
-		
+
 		res.json({ message: "Paciente eliminado correctamente" });
 	} catch (error) {
 		next(new AppError("Error eliminando paciente: " + error.message, 500));

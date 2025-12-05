@@ -1,5 +1,5 @@
-const multer = require ('multer');
-const path = require ('path');
+const multer = require('multer');
+const path = require('path');
 
 // 1. Configuracion de Almacenamiento
 
@@ -17,14 +17,14 @@ const storage = multer.diskStorage({
 
 // 2. Filtro de Archivos
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg | jpg | gi/;
+    const allowedTypes = /jpeg|jpg|gif/;
     const mimetype = allowedTypes.test(file.mimetype);
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
 
-    if(mimetype && extname) {
-        return cb (null, true);
+    if (mimetype && extname) {
+        return cb(null, true);
     }
-    cb('Error: El tipo de archivo no esta permitido!');
+    cb(new Error('Error: El tipo de archivo no esta permitido!'));
 };
 
 
@@ -32,7 +32,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({
     storage: storage,
-    limits: {fileSize: 1024 * 1024 * 5 },//Limite 5 MB
+    limits: { fileSize: 1024 * 1024 * 5 }, //Limite 5 MB
     fileFilter: fileFilter
 });
 

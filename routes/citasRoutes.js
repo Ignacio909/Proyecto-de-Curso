@@ -100,7 +100,7 @@ router.post("/", authenticate(["especialista", "paciente"]), async (req, res, ne
  *         description: Lista de citas
  */
 // Listar citas
-router.get("/", authenticate(["especialista"]), async (req, res, next) => {
+router.get("/", authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const citas = await citasController.getCitas();
 
