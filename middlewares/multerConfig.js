@@ -1,12 +1,17 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 // 1. Configuracion de Almacenamiento
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         //La carpeta donde se guardaran las imagenes
-        cb(null, 'public/images');
+        const dir = 'public/images/profile';
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
     },
     filename: (req, file, cb) => {
         //Crear un nombre de archivo unico para envitar confilctos

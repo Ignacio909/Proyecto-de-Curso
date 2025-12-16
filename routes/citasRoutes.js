@@ -374,7 +374,7 @@ router.get("/paciente/:id", authenticate(["especialista", "paciente"]), async (r
  *         description: Error interno del servidor
  */
 // Obtener citas por especialista
-router.get("/especialista/:id", authenticate(["especialista"]), async (req, res, next) => {
+router.get("/especialista/:id", authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const citas = await citasController.getCitasByEspecialista(req.params.id);
         logger.info(`Citas obtenidas para especialista - ID: ${req.params.id} - Total: ${citas.length} - IP: ${req.ip}`);
