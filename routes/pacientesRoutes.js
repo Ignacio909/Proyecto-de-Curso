@@ -200,16 +200,23 @@ router.get("/:id", authenticate(["admin", "especialista", "paciente"]), async (r
  */
 router.put("/:id", authenticate(["paciente"]), upload.single('imagen'), async (req, res, next) => {
 	try {
-
+		// 1. Preparamos la ruta de la imagen si existe
+		// NOTA: No incluimos 'public' en la ruta string para que sea accesible vía URL
 		const imagen = req.file ? `/images/profile/${req.file.filename}` : undefined;
 
-		const actualizado = await pacientesController.updatePaciente(req.params.id, req.body, imagen);
+		// 2. IMPORTANTE: Creamos un objeto único con los datos del body y la imagen
+		const datosActualizados = {
+			...req.body,
+			...(imagen && { imagen }) // Solo agrega la propiedad imagen si existe una nueva
+		};
+
+		// 3. Pasamos ese ÚNICO objeto 'datosActualizados' como segundo argumento
+		const actualizado = await pacientesController.updatePaciente(req.params.id, datosActualizados);
 
 		if (!actualizado) {
 			return next(new AppError("Paciente no encontrado", 404));
 		}
 
-		// Log de éxito
 		logger.info(`Paciente actualizado - ID: ${req.params.id} - IP: ${req.ip}`);
 
 		res.json(actualizado);

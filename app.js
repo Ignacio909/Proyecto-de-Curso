@@ -10,6 +10,7 @@ const autenticacionRoutes = require ("./routes/autenticacionRoutes.js");
 const { swaggerDocs } = require('./swagger.js');
 const allowOrigin = ['http://localhost:3000', 'http://localhost:3001'];
 const PORT = process.env.PORT || 3001;
+const path = require('path');
 require ("dotenv").config();
 
 const corsOptions = {
@@ -44,7 +45,7 @@ sequelize
 });
 
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 //Cors
 app.use(cors(corsOptions));

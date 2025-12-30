@@ -195,7 +195,7 @@ router.get("/:id", authenticate(["admin", "especialista"]), async (req, res, nex
 router.put("/:id", authenticate(["admin", "especialista"]), upload.single('imagen'), async (req, res, next) => {
 	try {
 		// Obtener la ruta de la imagen si se subió
-		const imagen = req.file ? `public/images/profile/${req.file.filename}` : undefined;
+		const imagen = req.file ? `/images/profile/${req.file.filename}` : undefined;
 
 		const datosActualizados = { ...req.body };
 		if (imagen) {
