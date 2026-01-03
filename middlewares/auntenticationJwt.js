@@ -30,7 +30,7 @@ const authenticate = (roles) => {
             */
 
             if (!roles || roles.length === 0 || roles.includes(decodedToken.rol)) {
-                req.userData = { userId: decodedToken.userId, rol: decodedToken.rol };
+                req.user = { userId: decodedToken.userId, rol: decodedToken.rol };
                 return next();
             } else {
                // console.log('❌ [AUTH DEBUG] Rol no autorizado:', decodedToken.rol, 'Permitidos:', roles);

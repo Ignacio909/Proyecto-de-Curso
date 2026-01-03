@@ -37,6 +37,7 @@
 const { DataTypes } = require ("sequelize");
 const bcrypt = require("bcryptjs");
 const sequelize = require("../helpers/database");
+const AppError = require ("../errors/AppError")
 
 
 const Personas = sequelize.define("personas",{
@@ -53,6 +54,16 @@ const Personas = sequelize.define("personas",{
 	contrasena: {
 		type: DataTypes.STRING,
 		allowNull:false,
+		validate: {
+            // Validación personalizada para contraseña fuerte
+            isStrongPassword(value) {
+                // Mínimo 8 caracteres, al menos una letra, un número y un símbolo
+                const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/
+                if (!regex.test(value)) {
+                    throw new AppError("Contraseña insegura: requiere min. 8 caracteres, letras, números y un símbolo (@$!%*#&).", 400);
+                }
+            }
+		}
 	},
 	rol: {
 		type: DataTypes.ENUM("paciente","especialista","admin"),

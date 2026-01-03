@@ -35,7 +35,7 @@ const logger = require("../loggers/loggerWinston");
  *             schema:
  *               type: object
  *               properties:
- *                 accessToken:
+ *                 token:
  *                   type: string
  *                 refreshToken:
  *                   type: string
@@ -135,15 +135,25 @@ router.post("/logout", async (req, res, next) => {
  */
 
 //Obtener informacion del usuario
+//
 router.get(
   "/user/profile",
   authenticate(["admin", "especialista", "paciente"]),
   async (req, res, next) => {
-    const { userId } = req.userData;
     try {
+      // 1. Extraemos de req.user (que definimos en el middleware)
+      const { userId, rol } = req.user; 
+
+      // 2. Buscamos en la base de datos
       const user = await persona.getUserById(userId);
+
+      // 3. Log corregido para usar req.user
+      logger.info(`Sesión validada - ID: ${userId} - Rol: ${rol}`);
+      
       res.status(200).json(user);
     } catch (error) {
+      // 4. Evitamos que el log falle si req.user es undefined
+      logger.error(`Error al recuperar perfil: ${error.message}`);
       next(error);
     }
   }
@@ -194,10 +204,12 @@ router.post("/user/refreshtoken", async (req, res, next) => {
   }
   try {
     const token = await persona.refreshAuthToken(refreshToken);
+    logger.info(`Token refrescado exitosamente - IP: ${req.ip}`);
     res.status(200).json({
       token,
     });
   } catch (error) {
+    logger.error(`Error al refrescar token - Error: ${error.message} - IP: ${req.ip}`);
     next(error);
   }
 });

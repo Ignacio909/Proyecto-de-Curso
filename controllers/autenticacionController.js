@@ -34,6 +34,7 @@ exports.login = async (correo, contrasena) => {
 };
 
 //Obtener usuario por id
+//
 exports.getUserById = async (id) => {
   const user = await Personas.findByPk(id, {
     attributes: { exclude: ['contrasena'] },

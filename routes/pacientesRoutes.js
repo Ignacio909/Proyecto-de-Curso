@@ -60,11 +60,38 @@ router.post("/", upload.single('imagen'), async (req, res, next) => {
 	try {
 		const { usuario, contrasena, correo, telefono, carnetIdentidad } = req.body;
 		const imagen = req.file ? `/images/profile/${req.file.filename}` : undefined;
+		
 		// Validación de campos requeridos
 		if (!usuario || !contrasena || !correo || !telefono || !carnetIdentidad) {
 			return next(new AppError("Campos requeridos faltantes", 400));
 		}
 
+		// 2. Validar Carnet de Identidad  (11 dígitos)
+        if (!/^\d{11}$/.test(carnetIdentidad)) {
+            return next(new AppError("El Carnet de Identidad debe tener 11 dígitos exactos.", 400));
+        }
+
+        // 3. Validar Teléfono Cuba (+53 opcional + 8 dígitos)
+        const phoneRegex = /^(\+53)?\d{8}$/;
+        if (!phoneRegex.test(telefono)) {
+            return next(new AppError("El teléfono debe ser un número válido de Cuba (8 dígitos).", 400));
+        }
+
+        // 4. Validar Contraseña Segura (Min 8 caracteres, letra, número y símbolo)
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/
+        if (!passwordRegex.test(contrasena)) {
+            return next(new AppError("Contraseña insegura: requiere min. 8 caracteres, letras, números y un símbolo (@$!%*#&).", 400));
+        }
+
+        // 5. Validar formato de Correo
+        if (!/^\S+@\S+\.\S+$/.test(correo)) {
+            return next(new AppError("El formato del correo electrónico no es válido.", 400));
+        }
+
+        // --- SI PASA LAS VALIDACIONES, EJECUTAMOS EL CONTROLADOR ---
+        
+        // Limpiamos el teléfono para que siempre guarde con +53 antes de enviarlo al controlador
+        const telefonoNormalizado = telefono.startsWith('+53') ? telefono : `+53${telefono}`;
 		const paciente = await pacientesController.createPaciente({ usuario, contrasena, correo, imagen, telefono, carnetIdentidad });
 
 		// Log de éxito

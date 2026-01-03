@@ -11,7 +11,7 @@ module.exports = {
 			usuario: "admin",
 			contrasena: hashedPassword,
 			rol: "admin",
-			correo: "admin@correo.com",
+			correo: "admin@gmail.com",
 			createdAt: new Date(),
 			updatedAt: new Date(),
 			deletedAt: null
