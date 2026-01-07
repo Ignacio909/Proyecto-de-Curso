@@ -53,7 +53,9 @@ router.post("/login", async (req, res, next) => {
     return next(new AppError("El correo y la contraseña son obligatorios", 400));
   }
   try {
-    const tokens = await persona.login(correo, contrasena);
+    const { correo, contrasena, twoFactorToken } = req.body; 
+
+    const tokens = await persona.login(correo, contrasena, twoFactorToken);
 
     logger.info(`Login exitoso - Usuario: ${correo} - IP: ${req.ip}`);
     res.status(200).json(tokens);
@@ -210,6 +212,42 @@ router.post("/user/refreshtoken", async (req, res, next) => {
     });
   } catch (error) {
     logger.error(`Error al refrescar token - Error: ${error.message} - IP: ${req.ip}`);
+    next(error);
+  }
+});
+
+// Ruta para INICIAR la configuración (Generar QR)
+// Requiere estar logueado (authenticate)
+router.post("/2fa/generate", authenticate(["admin", "especialista", "paciente"]), async (req, res, next) => {
+  try {
+    const { userId } = req.user; // Obtenemos el ID del token JWT actual
+    const { qrCodeUrl, secret } = await persona.generate2FA(userId);
+    
+    res.status(200).json({
+      status: "success",
+      qrCodeUrl, // Esto va al <img src> del frontend
+      secret
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Ruta para CONFIRMAR y ACTIVAR el 2FA
+router.post("/2fa/verify", authenticate(["admin", "especialista", "paciente"]), async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const { token } = req.body; // El código de 6 dígitos
+
+    const isVerified = await persona.verifyAndEnable2FA(userId, token);
+
+    if (isVerified) {
+      res.status(200).json({ message: "2FA activado correctamente" });
+    } else {
+      // Usamos 400 para indicar error de validación
+      next(new AppError("El código ingresado es incorrecto", 400));
+    }
+  } catch (error) {
     next(error);
   }
 });

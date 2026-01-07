@@ -79,6 +79,14 @@ const Personas = sequelize.define("personas",{
 		type: DataTypes.STRING,
 		allowNull: true, // Opcional como solicitaste
 	},
+	twoFactorSecret: {
+        type: DataTypes.STRING,
+        allowNull: true, // Es null hasta que el usuario lo active
+    },
+    twoFactorEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false, // Por defecto desactivado
+    },
 }, {
 	timestamps: true,
 	paranoid: true,
