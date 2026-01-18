@@ -264,6 +264,43 @@ router.put("/:id", authenticate(["especialista", "paciente"]), async (req, res, 
 
 /**
  * @swagger
+ * /citas/{id}/completar:
+ *   put:
+ *     summary: Marcar una cita como completada
+ *     tags: [Citas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID de la cita a completar
+ *     responses:
+ *       200:
+ *         description: Cita completada con éxito
+ *       404:
+ *         description: Cita no encontrada
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.patch("/:id/completar", authenticate(["especialista"]), async (req, res, next) => {
+    try {
+        await citasController.completarCita(req.params.id);
+        
+        // Log de éxito (Consistente con tus otros endpoints)
+        logger.info(`Cita marcada como completada - ID: ${req.params.id} - EspecialistaID: ${req.user.userId} - IP: ${req.ip}`);
+        
+        res.status(200).json({ message: "Cita completada con éxito" });
+    } catch (error) {
+        // Log de error
+        logger.error(`Error al completar cita - ID: ${req.params.id} - Error: ${error.message} - IP: ${req.ip}`);
+        next(error);
+    }
+});
+
+/**
+ * @swagger
  * /citas/{id}:
  *   delete:
  *     summary: Eliminar una cita

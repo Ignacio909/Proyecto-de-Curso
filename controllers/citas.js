@@ -47,6 +47,15 @@ const updateCita = async (id, data) => {
     return cita;
 };
 
+// En tu controlador de citas
+const completarCita = async (id) => {
+    const cita = await Citas.findByPk(id);
+    if (!cita) throw new AppError("Cita no encontrada", 404);
+    
+    await cita.update({ estado: 'completada' });
+    return cita;
+};
+
 // Eliminar una cita
 const deleteCita = async (id) => {
     const cita = await Citas.findByPk(id);
@@ -84,6 +93,7 @@ module.exports = {
     getCitas,
     getCitaById,
     updateCita,
+    completarCita,
     deleteCita,
     getCitasByPaciente,
     getCitasByEspecialista,
