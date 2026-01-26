@@ -9,7 +9,7 @@ const Especialistas = require('../models/especialistas');
 const AppError = require('../errors/AppError');
 
 //Loguearse
-exports.login = async (correo, contrasena,twoFactorToken) => {
+exports.login = async (correo, contrasena, twoFactorToken) => {
   // Verificar si el usuario existe
   const user = await Personas.findOne({ where: { correo } });
   if (!user) {
@@ -21,28 +21,28 @@ exports.login = async (correo, contrasena,twoFactorToken) => {
     throw new AppError(`Contraseña Incorrecta`, 401);
   }
 
-// --- LÓGICA 2FA ---
-if (user.twoFactorEnabled) {
-  // Si el usuario tiene 2FA pero NO envió el token todavía (Paso 1 del login)
-  if (!twoFactorToken) {
-    return { 
-      require2FA: true, 
-      userId: user.id
-    };
-  }
+  // --- LÓGICA 2FA ---
+  if (user.twoFactorEnabled) {
+    // Si el usuario tiene 2FA pero NO envió el token todavía (Paso 1 del login)
+    if (!twoFactorToken) {
+      return {
+        require2FA: true,
+        userId: user.id
+      };
+    }
 
-  // Si el usuario SÍ envió el token (Paso 2 del login), lo verificamos
-  const verified = speakeasy.totp.verify({
-    secret: user.twoFactorSecret,
-    encoding: 'base32',
-    token: twoFactorToken,
-    window: 1 // Permite un margen de error de 30 segundos (por si los relojes no están exactos)
-  });
+    // Si el usuario SÍ envió el token (Paso 2 del login), lo verificamos
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: 'base32',
+      token: twoFactorToken,
+      window: 1 // Permite un margen de error de 30 segundos (por si los relojes no están exactos)
+    });
 
-  if (!verified) {
-    throw new AppError("Código 2FA incorrecto o expirado", 401);
+    if (!verified) {
+      throw new AppError("Código 2FA incorrecto o expirado", 401);
+    }
   }
-}
 
   const token = jwt.sign(
     { userId: user.id, correo: user.correo, rol: user.rol },
@@ -101,7 +101,7 @@ exports.generate2FA = async (userId) => {
   // Generamos un secreto único para este usuario
   // 'name' es lo que saldrá en la app (Google Authenticator) del usuario
   const secret = speakeasy.generateSecret({
-    name: `ConsultorioMedico (${user.correo})` 
+    name: `ConsultorioMedico (${user.correo})`
   });
 
   // Guardamos el secreto TEMPORALMENTE en la BD (pero aún no activamos el enabled)
@@ -138,4 +138,18 @@ exports.verifyAndEnable2FA = async (userId, token) => {
   } else {
     return false; // Código incorrecto
   }
+
+
+  // 3. Desactivar 2FA
+  exports.disable2FA = async (userId) => {
+    const user = await Personas.findByPk(userId);
+    if (!user) throw new AppError("Usuario no encontrado", 404);
+
+    user.twoFactorEnabled = false;
+    user.twoFactorSecret = null; // Opcional: borrar el secreto para obligar a re-escanear si lo reactiva
+    await user.save();
+
+    return true;
+  };
+
 };

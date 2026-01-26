@@ -53,7 +53,7 @@ router.post("/login", async (req, res, next) => {
     return next(new AppError("El correo y la contraseña son obligatorios", 400));
   }
   try {
-    const { correo, contrasena, twoFactorToken } = req.body; 
+    const { correo, contrasena, twoFactorToken } = req.body;
 
     const tokens = await persona.login(correo, contrasena, twoFactorToken);
 
@@ -144,14 +144,14 @@ router.get(
   async (req, res, next) => {
     try {
       // 1. Extraemos de req.user (que definimos en el middleware)
-      const { userId, rol } = req.user; 
+      const { userId, rol } = req.user;
 
       // 2. Buscamos en la base de datos
       const user = await persona.getUserById(userId);
 
       // 3. Log corregido para usar req.user
       logger.info(`Sesión validada - ID: ${userId} - Rol: ${rol}`);
-      
+
       res.status(200).json(user);
     } catch (error) {
       // 4. Evitamos que el log falle si req.user es undefined
@@ -222,7 +222,7 @@ router.post("/2fa/generate", authenticate(["admin", "especialista", "paciente"])
   try {
     const { userId } = req.user; // Obtenemos el ID del token JWT actual
     const { qrCodeUrl, secret } = await persona.generate2FA(userId);
-    
+
     res.status(200).json({
       status: "success",
       qrCodeUrl, // Esto va al <img src> del frontend
@@ -247,6 +247,19 @@ router.post("/2fa/verify", authenticate(["admin", "especialista", "paciente"]), 
       // Usamos 400 para indicar error de validación
       next(new AppError("El código ingresado es incorrecto", 400));
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Ruta para DESACTIVAR el 2FA
+router.post("/2fa/disable", authenticate(["admin", "especialista", "paciente"]), async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    await persona.disable2FA(userId);
+
+    logger.info(`2FA desactivado - UsuarioID: ${userId} - IP: ${req.ip}`);
+    res.status(200).json({ message: "2FA desactivado correctamente" });
   } catch (error) {
     next(error);
   }

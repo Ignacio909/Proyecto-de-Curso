@@ -1,4 +1,5 @@
 const Citas = require("../models/citas");
+const Personas = require("../models/personas");
 const Pacientes = require("../models/pacientes");
 const Especialistas = require("../models/especialistas");
 
@@ -20,7 +21,10 @@ const getCitas = async () => {
     return await Citas.findAll({
         include: [
             { model: Pacientes, as: "paciente" },
-            { model: Especialistas, as: "especialista" },
+            {
+                model: Especialistas, as: "especialista",
+                include: [{ model: Personas, as: "persona" }]
+            },
         ],
     });
 };
@@ -30,7 +34,10 @@ const getCitaById = async (id) => {
     return await Citas.findByPk(id, {
         include: [
             { model: Pacientes, as: "paciente" },
-            { model: Especialistas, as: "especialista" },
+            {
+                model: Especialistas, as: "especialista",
+                include: [{ model: Personas, as: "persona" }]
+            },
         ],
     });
 };
@@ -51,7 +58,7 @@ const updateCita = async (id, data) => {
 const completarCita = async (id) => {
     const cita = await Citas.findByPk(id);
     if (!cita) throw new AppError("Cita no encontrada", 404);
-    
+
     await cita.update({ estado: 'completada' });
     return cita;
 };
@@ -72,7 +79,10 @@ const getCitasByPaciente = async (pacienteId) => {
         where: { pacienteId },
         include: [
             { model: Pacientes, as: "paciente" },
-            { model: Especialistas, as: "especialista" },
+            {
+                model: Especialistas, as: "especialista",
+                include: [{ model: Personas, as: "persona" }]
+            },
         ],
     });
 };
@@ -82,7 +92,10 @@ const getCitasByEspecialista = async (especialistaId) => {
     return await Citas.findAll({
         where: { especialistaId },
         include: [
-            { model: Pacientes, as: "paciente" },
+            {
+                model: Pacientes, as: "paciente",
+                include: [{ model: Personas, as: "persona" }]
+            },
             { model: Especialistas, as: "especialista" },
         ],
     });
