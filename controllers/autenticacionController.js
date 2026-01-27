@@ -138,7 +138,7 @@ exports.verifyAndEnable2FA = async (userId, token) => {
   } else {
     return false; // Código incorrecto
   }
-
+};
 
   // 3. Desactivar 2FA
   exports.disable2FA = async (userId) => {
@@ -152,4 +152,3 @@ exports.verifyAndEnable2FA = async (userId, token) => {
     return true;
   };
 
-};
