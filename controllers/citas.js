@@ -33,7 +33,7 @@ const getCitas = async () => {
 const getCitaById = async (id) => {
     return await Citas.findByPk(id, {
         include: [
-            { model: Pacientes, as: "paciente" },
+            { model: Pacientes, as: "paciente", include: [{ model: Personas, as: "persona" }] },
             {
                 model: Especialistas, as: "especialista",
                 include: [{ model: Personas, as: "persona" }]

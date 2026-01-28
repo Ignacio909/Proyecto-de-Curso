@@ -122,6 +122,27 @@ router.get("/:id",authenticate(["especialista"]), async (req, res, next) => {
     }
 });
 
+
+/**
+ * @swagger
+ * /registros-clinicos/historia/{id}:
+ * get:
+ * summary: Obtener todos los registros de una historia clínica
+ * tags: [RegistrosClinicos]
+ */
+router.get("/historia/:id", authenticate(["especialista", "admin"]), async (req, res, next) => {
+    try {
+        const registros = await registroClinicosController.getRegistrosByHistoriaId(req.params.id);
+        
+        // Log para que veas en la consola del backend si llega la petición
+        logger.info(`GET/ Registros obtenidos para historia ID: ${req.params.id}`);
+        
+        res.json(registros);
+    } catch (error) {
+        next(new AppError("Error obteniendo registros: " + error.message, 500));
+    }
+});
+
 /**
  * @swagger
  * /registros-clinicos/{id}:
@@ -156,7 +177,10 @@ router.get("/:id",authenticate(["especialista"]), async (req, res, next) => {
  */
 router.put("/:id",authenticate(["especialista"]), async (req, res, next) => {
     try {
-        const actualizado = await registroClinicosController.updateRegistroClinico(req.params.id, req.body);
+        const actualizado = await registroClinicosController.updateRegistroClinico(req.params.id, 
+            req.body, 
+            req.user.id, 
+            req.user.rol);
         
         if (!actualizado) {
             return next(new AppError("Registro clínico no encontrado", 404));
@@ -203,7 +227,9 @@ router.put("/:id",authenticate(["especialista"]), async (req, res, next) => {
  */
 router.delete("/:id",authenticate(["especialista"]), async (req, res, next) => {
     try {
-        const eliminado = await registroClinicosController.deleteRegistroClinico(req.params.id);
+        const eliminado = await registroClinicosController.deleteRegistroClinico(req.params.id, 
+            req.user.id, 
+            req.user.rol);
         
         if (!eliminado) {
             return next(new AppError("Registro clínico no encontrado", 404));

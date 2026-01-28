@@ -100,7 +100,7 @@ router.post("/", authenticate(["especialista", "paciente"]), async (req, res, ne
  *         description: Lista de citas
  */
 // Listar citas
-router.get("/", authenticate(["especialista", "paciente"]), async (req, res, next) => {
+router.get("/", authenticate(["especialista", "paciente", "admin"]), async (req, res, next) => {
     try {
         const citas = await citasController.getCitas();
 
@@ -140,7 +140,7 @@ router.get("/", authenticate(["especialista", "paciente"]), async (req, res, nex
  *         description: Error interno del servidor
  */
 // Obtener cita por ID
-router.get("/:id", authenticate(["especialista", "paciente"]), async (req, res, next) => {
+router.get("/:id", authenticate(["especialista", "paciente", "admin"]), async (req, res, next) => {
     try {
         const cita = await citasController.getCitaById(req.params.id);
 
@@ -330,7 +330,7 @@ router.patch("/:id/completar", authenticate(["especialista"]), async (req, res, 
  *         description: Error interno del servidor
  */
 // Eliminar cita
-router.delete("/:id", authenticate(["especialista", "paciente"]), async (req, res, next) => {
+router.delete("/:id", authenticate(["especialista", "paciente","admin"]), async (req, res, next) => {
     try {
         const eliminado = await citasController.deleteCita(req.params.id);
 

@@ -8,7 +8,7 @@ const createRegistroClinico= async (registro) => {
 
         const {diagnostico, tratamiento, 
             observaciones, historiaClinicaId, especialistaId} = registro;
-
+            
         //Validamos que la historia exista
         const historia = await HistoriaClinica.findByPk(historiaClinicaId);
         if(!historia){
@@ -50,12 +50,29 @@ const getRegistroClinicoById = async (id) => {
     });
 };
 
+// Obtener registros clínicos por ID de Historia Clínica
+const getRegistrosByHistoriaId = async (historiaClinicaId) => {
+    return await RegistroClinico.findAll({
+        where: { historiaClinicaId },
+        include: [
+            { model: Especialistas, as: "especialista" }
+        ],
+        order: [['createdAt', 'DESC']] // Para que salgan los más nuevos primero
+    });
+};
+
 // Actualizar un registro clínico
-const updateRegistroClinico = async (id, data) => {
+const updateRegistroClinico = async (id, data, requesterId, userRole) => {
     const registro = await RegistroClinico.findByPk(id);
     if (!registro) {
         return null;
     }
+
+    // VALIDACIÓN: Si no es admin y no es el dueño, error
+    if (userRole !== 'especialista' && registro.especialistaId !== requesterId) {
+        throw new AppError("No tienes permiso para editar este registro", 403);
+    }
+
     const { diagnostico, tratamiento, observaciones } = data;
     await registro.update({ diagnostico, tratamiento, observaciones });
     return registro;
@@ -67,6 +84,12 @@ const deleteRegistroClinico = async (id) => {
     if (!registro) {
         return null;
     }
+
+    // VALIDACIÓN: Solo el dueño o el admin pueden borrar
+    if (userRole !== 'especialista' && registro.especialistaId !== requesterId) {
+        throw new AppError("No tienes permiso para eliminar este registro", 403);
+    }
+
     await registro.destroy();
     return true;
 };
@@ -75,6 +98,7 @@ module.exports = {
     createRegistroClinico,
     getRegistrosClinicos,
     getRegistroClinicoById,
+    getRegistrosByHistoriaId,
     updateRegistroClinico,
     deleteRegistroClinico,
 };
