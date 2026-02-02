@@ -101,13 +101,13 @@ Especialistas.hasMany(Citas, {
 
 // Relación many-to-many a través de Citas
 Pacientes.belongsToMany(Especialistas, {
-	through: Citas,
+	through: { model: Citas, unique: false },
 	foreignKey: "pacienteId",
 	otherKey: "especialistaId",
 	as: "especialistas"
 });
 Especialistas.belongsToMany(Pacientes, {
-	through: Citas,
+	through: { model: Citas, unique: false },
 	foreignKey: "especialistaId",
 	otherKey: "pacienteId",
 	as: "pacientes"

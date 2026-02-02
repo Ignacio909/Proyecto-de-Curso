@@ -72,6 +72,22 @@ router.post("/", authenticate(["especialista", "paciente"]), async (req, res, ne
             return next(new AppError("Especialista no encontrado", 404));
         }
 
+        // --- INICIO DE LA NUEVA VALIDACIÓN ---
+        // Verificar si el paciente YA tiene una cita PENDIENTE con este especialista
+        const citaPendiente = await Citas.findOne({
+            where: {
+                pacienteId: pacienteId,
+                especialistaId: especialistaId,
+                estado: 'pendiente' // Solo nos importa si está pendiente
+            }
+        });
+        
+        // Si encontramos una, lanzamos error y NO creamos la nueva
+        if (citaPendiente) {
+            return next(new AppError("Ya tienes una cita pendiente con este especialista. No puedes agendar otra hasta completarla o cancelarla.", 400));
+        }
+        // --- FIN DE LA NUEVA VALIDACIÓN ---
+        
         // Verificar conflicto de agenda: misma fecha/hora con el mismo especialista
         const conflicto = await Citas.findOne({ where: { fecha, hora, especialistaId } });
         if (conflicto) {
