@@ -65,7 +65,7 @@ router.get("/",authenticate(["especialista"]), async (req, res, next) => {
         const historias = await historiaClinicaControllers.getHistoriasClinicas();
         
         // Log de éxito
-        logger.info(`Lista de historias clínicas obtenida - Total: ${historias.length} - IP: ${req.ip}`);
+        logger.info(`GET/ Lista de historias clínicas obtenida - Total: ${historias.length} - IP: ${req.ip}`);
         
         res.json(historias);
     } catch (error) {
@@ -108,7 +108,7 @@ router.get("/:id",authenticate(["especialista"]),async (req, res, next) => {
         }
         
         // Log de éxito
-        logger.info(`Historia clínica obtenida - ID: ${req.params.id} - IP: ${req.ip}`);
+        logger.info(`GET/ Historia clínica obtenida - ID: ${req.params.id} - IP: ${req.ip}`);
 
         res.json(historia);
     } catch (error) {
@@ -157,7 +157,7 @@ router.put("/:id",authenticate(["especialista"]), async (req, res, next) => {
         }
         
         // Log de éxito
-        logger.info(`Historia clínica actualizada - ID: ${req.params.id} - IP: ${req.ip}`);
+        logger.info(`PUT/ Historia clínica actualizada - ID: ${req.params.id} - IP: ${req.ip}`);
         
         res.json(historia);
     } catch (error) {
@@ -204,7 +204,7 @@ router.delete("/:id",authenticate(["especialista"]), async (req, res, next) => {
         }
         
         // Log de éxito
-        logger.info(`Historia clínica eliminada - ID: ${req.params.id} - IP: ${req.ip}`);
+        logger.info(`DELETE/ Historia clínica eliminada - ID: ${req.params.id} - IP: ${req.ip}`);
         
         res.json({ message: "Historia clínica eliminada correctamente" });
     } catch (error) {
@@ -248,7 +248,7 @@ router.get("/paciente/:pacienteId",authenticate(["especialista"]), async (req, r
         }
         
         // Log de éxito
-        logger.info(`Historia clínica obtenida por pacienteId - PacienteID: ${req.params.pacienteId} - IP: ${req.ip}`);
+        logger.info(`GET/ Historia clínica obtenida por pacienteId - PacienteID: ${req.params.pacienteId} - IP: ${req.ip}`);
         
         res.json(historia);
     } catch (error) {

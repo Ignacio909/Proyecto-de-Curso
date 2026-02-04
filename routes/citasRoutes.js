@@ -105,7 +105,7 @@ router.get("/", authenticate(["especialista", "paciente", "admin"]), async (req,
         const citas = await citasController.getCitas();
 
         // Log de éxito
-        logger.info(`Lista de citas obtenida - Total: ${citas.length} - IP: ${req.ip}`);
+        logger.info(`GET/ Lista de citas obtenida - Total: ${citas.length} - IP: ${req.ip}`);
 
         res.json(citas);
     } catch (error) {
@@ -149,7 +149,7 @@ router.get("/:id", authenticate(["especialista", "paciente", "admin"]), async (r
         }
 
         // Log de éxito
-        logger.info(`Cita obtenida - ID: ${req.params.id} - IP: ${req.ip}`);
+        logger.info(`GET/ Cita obtenida - ID: ${req.params.id} - IP: ${req.ip}`);
 
         res.json(cita);
     } catch (error) {
@@ -254,7 +254,7 @@ router.put("/:id", authenticate(["especialista", "paciente"]), async (req, res, 
         const cita = await citasController.updateCita(req.params.id, { fecha, hora, estado, pacienteId, especialistaId });
 
         // Log de éxito
-        logger.info(`Cita actualizada - ID: ${req.params.id} - IP: ${req.ip}`);
+        logger.info(`PUT/ Cita actualizada - ID: ${req.params.id} - IP: ${req.ip}`);
 
         res.json(cita);
     } catch (error) {
@@ -289,7 +289,7 @@ router.patch("/:id/completar", authenticate(["especialista"]), async (req, res, 
         await citasController.completarCita(req.params.id);
         
         // Log de éxito (Consistente con tus otros endpoints)
-        logger.info(`Cita marcada como completada - ID: ${req.params.id} - EspecialistaID: ${req.user.userId} - IP: ${req.ip}`);
+        logger.info(`PATCH/ Cita marcada como completada - ID: ${req.params.id} - EspecialistaID: ${req.user.userId} - IP: ${req.ip}`);
         
         res.status(200).json({ message: "Cita completada con éxito" });
     } catch (error) {
@@ -339,7 +339,7 @@ router.delete("/:id", authenticate(["especialista", "paciente","admin"]), async 
         }
 
         // Log de éxito
-        logger.info(`Cita eliminada - ID: ${req.params.id} - IP: ${req.ip}`);
+        logger.info(`DELETE/ Cita eliminada - ID: ${req.params.id} - IP: ${req.ip}`);
 
         res.json({ message: "Cita eliminada correctamente" });
     } catch (error) {
@@ -377,7 +377,7 @@ router.delete("/:id", authenticate(["especialista", "paciente","admin"]), async 
 router.get("/paciente/:id", authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const citas = await citasController.getCitasByPaciente(req.params.id);
-        logger.info(`Citas obtenidas para paciente - ID: ${req.params.id} - Total: ${citas.length} - IP: ${req.ip}`);
+        logger.info(`GET/ Citas obtenidas para paciente - ID: ${req.params.id} - Total: ${citas.length} - IP: ${req.ip}`);
         res.json(citas);
     } catch (error) {
         next(new AppError("Error obteniendo citas del paciente: " + error.message, 500));
@@ -414,7 +414,7 @@ router.get("/paciente/:id", authenticate(["especialista", "paciente"]), async (r
 router.get("/especialista/:id", authenticate(["especialista", "paciente"]), async (req, res, next) => {
     try {
         const citas = await citasController.getCitasByEspecialista(req.params.id);
-        logger.info(`Citas obtenidas para especialista - ID: ${req.params.id} - Total: ${citas.length} - IP: ${req.ip}`);
+        logger.info(`GET/ Citas obtenidas para especialista - ID: ${req.params.id} - Total: ${citas.length} - IP: ${req.ip}`);
         res.json(citas);
     } catch (error) {
         next(new AppError("Error obteniendo citas del especialista: " + error.message, 500));
