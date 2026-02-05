@@ -68,7 +68,7 @@ router.post("/", authenticate(["admin"]), upload.single('imagen'), async (req, r
 		const especialista = await especialistasController.createEspecialista({ usuario, contrasena, correo, especialidad, imagen });
 
 		// Log de éxito
-		logger.info(`Especialista creado - ID: ${especialista.id} - Usuario: ${usuario} - IP: ${req.ip}`);
+		logger.info(`POST/ Especialista creado - ID: ${especialista.id} - Usuario: ${usuario} - IP: ${req.ip}`);
 
 		res.status(201).json(especialista);
 	} catch (error) {
@@ -99,7 +99,7 @@ router.get("/", authenticate(["admin", "paciente", "especialista"]), async (req,
 		const especialistas = await especialistasController.getEspecialistas();
 
 		// Log de éxito
-		logger.info(`Lista de especialistas obtenida - Total: ${especialistas.length} - IP: ${req.ip}`);
+		logger.info(`GET/ Lista de especialistas obtenida - Total: ${especialistas.length} - IP: ${req.ip}`);
 
 		res.json(especialistas);
 	} catch (error) {
@@ -142,7 +142,7 @@ router.get("/:id", authenticate(["admin", "especialista"]), async (req, res, nex
 		}
 
 		// Log de éxito
-		logger.info(`Especialista obtenido - ID: ${req.params.id} - IP: ${req.ip}`);
+		logger.info(` GET/ Especialista obtenido - ID: ${req.params.id} - IP: ${req.ip}`);
 
 		res.json(especialista);
 	} catch (error) {
@@ -209,7 +209,7 @@ router.put("/:id", authenticate(["admin", "especialista"]), upload.single('image
 		}
 
 		// Log de éxito
-		logger.info(`Especialista actualizado - ID: ${req.params.id} - IP: ${req.ip}`);
+		logger.info(`PUT/ Especialista actualizado - ID: ${req.params.id} - IP: ${req.ip}`);
 
 		res.json(actualizado);
 	} catch (error) {
@@ -256,7 +256,7 @@ router.delete("/:id", authenticate(["admin"]), async (req, res, next) => {
 		}
 
 		// Log de éxito
-		logger.info(`Especialista eliminado - ID: ${req.params.id} - IP: ${req.ip}`);
+		logger.info(`DELETE/ Especialista eliminado - ID: ${req.params.id} - IP: ${req.ip}`);
 
 		res.json({ message: "Especialista eliminado correctamente" });
 	} catch (error) {

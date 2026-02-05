@@ -95,7 +95,7 @@ router.post("/", upload.single('imagen'), async (req, res, next) => {
 		const paciente = await pacientesController.createPaciente({ usuario, contrasena, correo, imagen, telefono, carnetIdentidad });
 
 		// Log de éxito
-		logger.info(`Paciente creado exitosamente - ID: ${paciente.id} - Usuario: ${usuario} - IP: ${req.ip}`);
+		logger.info(`POST/ Paciente creado exitosamente - ID: ${paciente.id} - Usuario: ${usuario} - IP: ${req.ip}`);
 
 		res.status(201).json(paciente);
 	} catch (error) {
@@ -126,7 +126,7 @@ router.get("/", authenticate(["admin", "especialista"]), async (req, res, next) 
 		const pacientes = await pacientesController.getPacientes();
 
 		// Log de éxito
-		logger.info(`Lista de pacientes obtenida - Total: ${pacientes.length} - IP: ${req.ip}`);
+		logger.info(`GET/ Lista de pacientes obtenida - Total: ${pacientes.length} - IP: ${req.ip}`);
 
 		res.json(pacientes);
 	} catch (error) {
@@ -169,7 +169,7 @@ router.get("/:id", authenticate(["admin", "especialista", "paciente"]), async (r
 		}
 
 		// Log de éxito
-		logger.info(`Paciente obtenido - ID: ${req.params.id} - IP: ${req.ip}`);
+		logger.info(`GET/ Paciente obtenido - ID: ${req.params.id} - IP: ${req.ip}`);
 
 		res.json(paciente);
 	} catch (error) {
@@ -244,7 +244,7 @@ router.put("/:id", authenticate(["paciente"]), upload.single('imagen'), async (r
 			return next(new AppError("Paciente no encontrado", 404));
 		}
 
-		logger.info(`Paciente actualizado - ID: ${req.params.id} - IP: ${req.ip}`);
+		logger.info(`PUT/ Paciente actualizado - ID: ${req.params.id} - IP: ${req.ip}`);
 
 		res.json(actualizado);
 	} catch (error) {
@@ -291,7 +291,7 @@ router.delete("/:id", authenticate(["admin"]), async (req, res, next) => {
 		}
 
 		// Log de éxito
-		logger.info(`Paciente eliminado - ID: ${req.params.id} - IP: ${req.ip}`);
+		logger.info(`DELETE/ Paciente eliminado - ID: ${req.params.id} - IP: ${req.ip}`);
 
 		res.json({ message: "Paciente eliminado correctamente" });
 	} catch (error) {

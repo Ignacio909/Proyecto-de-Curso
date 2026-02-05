@@ -40,7 +40,7 @@ router.post("/",authenticate(["especialista"]), async (req, res, next) => {
         const registro = await registroClinicosController.createRegistroClinico(req.body);
         
         // Log de éxito
-        logger.info(`Registro clínico creado - ID: ${registro.id} - IP: ${req.ip}`);
+        logger.info(`POST/ Registro clínico creado - ID: ${registro.id} - IP: ${req.ip}`);
         
         res.status(201).json(registro);
     } catch (error) {
@@ -71,7 +71,7 @@ router.get("/",authenticate(["especialista"]), async (req, res, next) => {
         const registros = await registroClinicosController.getRegistrosClinicos();
         
         // Log de éxito
-        logger.info(`Lista de registros clínicos obtenida - Total: ${registros.length} - IP: ${req.ip}`);
+        logger.info(`GET/ Lista de registros clínicos obtenida - Total: ${registros.length} - IP: ${req.ip}`);
         
         res.json(registros);
     } catch (error) {
@@ -187,7 +187,7 @@ router.put("/:id",authenticate(["especialista"]), async (req, res, next) => {
         }
         
         // Log de éxito
-        logger.info(`Registro clínico actualizado - ID: ${req.params.id} - IP: ${req.ip}`);
+        logger.info(`PUT/ Registro clínico actualizado - ID: ${req.params.id} - IP: ${req.ip}`);
         
         res.json(actualizado);
     } catch (error) {
@@ -236,7 +236,7 @@ router.delete("/:id",authenticate(["especialista"]), async (req, res, next) => {
         }
         
         // Log de éxito
-        logger.info(`Registro clínico eliminado - ID: ${req.params.id} - IP: ${req.ip}`);
+        logger.info(`DELETE/ Registro clínico eliminado - ID: ${req.params.id} - IP: ${req.ip}`);
         
         res.json({ message: "Registro clínico eliminado correctamente" });
     } catch (error) {

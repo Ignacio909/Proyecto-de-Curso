@@ -57,7 +57,7 @@ router.post("/login", async (req, res, next) => {
 
     const tokens = await persona.login(correo, contrasena, twoFactorToken);
 
-    logger.info(`Login exitoso - Usuario: ${correo} - IP: ${req.ip}`);
+    logger.info(`POST/ Login exitoso - Usuario: ${correo} - IP: ${req.ip}`);
     res.status(200).json(tokens);
   } catch (error) {
     logger.error(`Error en login - Usuario: ${correo} - Error: ${error.message} - IP: ${req.ip}`);
@@ -102,7 +102,7 @@ router.post("/login", async (req, res, next) => {
 router.post("/logout", async (req, res, next) => {
   const { token } = req.body;
   try {
-    logger.info(`Logout exitoso - IP: ${req.ip}`);
+    logger.info(`POST/ Logout exitoso - IP: ${req.ip}`);
     res.status(200).send("Usted a cerrado sesión");
   } catch (error) {
     logger.error(`Error en logout - Error: ${error.message} - IP: ${req.ip}`);
@@ -150,7 +150,7 @@ router.get(
       const user = await persona.getUserById(userId);
 
       // 3. Log corregido para usar req.user
-      logger.info(`Sesión validada - ID: ${userId} - Rol: ${rol}`);
+      logger.info(`GET/ Sesión validada - ID: ${userId} - Rol: ${rol}`);
 
       res.status(200).json(user);
     } catch (error) {
@@ -206,7 +206,7 @@ router.post("/user/refreshtoken", async (req, res, next) => {
   }
   try {
     const token = await persona.refreshAuthToken(refreshToken);
-    logger.info(`Token refrescado exitosamente - IP: ${req.ip}`);
+    logger.info(`POST/ Token refrescado exitosamente - IP: ${req.ip}`);
     res.status(200).json({
       token,
     });
@@ -222,6 +222,8 @@ router.post("/2fa/generate", authenticate(["admin", "especialista", "paciente"])
   try {
     const { userId } = req.user; // Obtenemos el ID del token JWT actual
     const { qrCodeUrl, secret } = await persona.generate2FA(userId);
+
+    logger.info(`POST/ Código QR generado exitosamente - IP: ${req.ip}`);
 
     res.status(200).json({
       status: "success",
@@ -242,6 +244,7 @@ router.post("/2fa/verify", authenticate(["admin", "especialista", "paciente"]), 
     const isVerified = await persona.verifyAndEnable2FA(userId, token);
 
     if (isVerified) {
+      logger.info(`POST/ 2FA activado correctamente - IP: ${req.ip}`);
       res.status(200).json({ message: "2FA activado correctamente" });
     } else {
       // Usamos 400 para indicar error de validación

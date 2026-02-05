@@ -7,6 +7,7 @@ const citasRoutes = require("./routes/citasRoutes");
 const pacientesRoutes = require("./routes/pacientesRoutes.js");
 const especialistasRoutes = require("./routes/especialistasRoutes.js");
 const autenticacionRoutes = require ("./routes/autenticacionRoutes.js");
+const personasRoutes = require ("./routes/personasRoutes.js");
 const { swaggerDocs } = require('./swagger.js');
 const allowOrigin = ['http://localhost:3000', 'http://localhost:3001'];
 const PORT = process.env.PORT || 3001;
@@ -57,6 +58,7 @@ app.use("/citas", citasRoutes);
 app.use("/pacientes", pacientesRoutes);
 app.use("/especialistas", especialistasRoutes);
 app.use("/autenticacionRoutes",autenticacionRoutes)
+app.use("/personas", personasRoutes);
 
 //Middelware Manejo de Errores
 app.use(errorHandler);
