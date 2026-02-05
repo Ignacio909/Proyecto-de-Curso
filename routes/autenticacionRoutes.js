@@ -261,7 +261,7 @@ router.post("/2fa/disable", authenticate(["admin", "especialista", "paciente"]),
     const { userId } = req.user;
     await persona.disable2FA(userId);
 
-    logger.info(`2FA desactivado - UsuarioID: ${userId} - IP: ${req.ip}`);
+    logger.info(`POST/ 2FA desactivado - UsuarioID: ${userId} - IP: ${req.ip}`);
     res.status(200).json({ message: "2FA desactivado correctamente" });
   } catch (error) {
     next(error);
